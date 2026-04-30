@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WatchDog — Financial Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f;--surface:#111118;--surface2:#16161f;--border:rgba(255,255,255,0.07);
+  --text:#e8e8f0;--muted:#6b6b80;--accent:#7c6af7;--accent2:#4ecdc4;
+  --green:#2ecc8a;--red:#ff5c5c;--amber:#f5a623;--gold:#c9a84c;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 20% 20%,rgba(124,106,247,0.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 80% 80%,rgba(78,205,196,0.06) 0%,transparent 50%);
+  pointer-events:none;z-index:0;}
+.container{max-width:1200px;margin:0 auto;padding:0 20px;position:relative;z-index:1;}
+.main-padding{padding:24px 20px;}
+
+/* RATES BAR */
+.rates-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 20px;
+  display:flex;gap:24px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+  overflow-x:auto;position:relative;z-index:1;align-items:center;}
+.rate-item{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.rate-val{color:var(--accent2);font-weight:500;}
+.rate-err{color:var(--red);}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+
+/* HEADER */
+header{padding:28px 20px 20px;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{font-size:32px;line-height:1;}
+.logo h1{font-family:'DM Serif Display',serif;font-size:clamp(22px,4vw,34px);letter-spacing:-0.5px;line-height:1;}
+.logo h1 span{color:var(--accent);}
+.logo p{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px;}
+.currency-toggle{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;}
+.currency-btn{padding:6px 14px;border-radius:7px;border:none;background:transparent;color:var(--muted);
+  font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;font-weight:500;}
+.currency-btn.active{background:var(--accent);color:#fff;}
+
+/* GRID */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+@media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color 0.2s;}
+.card:hover{border-color:rgba(124,106,247,0.25);}
+.card-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.card-value{font-family:'DM Serif Display',serif;font-size:clamp(20px,3vw,28px);color:var(--text);line-height:1;}
+.card-sub{font-size:11px;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace;}
+.card-sub.up{color:var(--green);}.card-sub.amber{color:var(--amber);}
+.card-accent{border-left:3px solid var(--accent);}
+.card-green{border-left:3px solid var(--green);}
+.card-amber{border-left:3px solid var(--amber);}
+.card-gold{border-left:3px solid var(--gold);}
+
+/* SECTION */
+.section{margin-bottom:28px;padding-top:8px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:19px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ASSET TABLE */
+.asset-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr 0.8fr;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s;}
+.asset-row:hover{background:rgba(255,255,255,0.02);}
+.asset-row.hdr{color:var(--muted);font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;}
+.asset-row.hdr:hover{background:transparent;}
+.asset-name{font-weight:500;font-size:13px;}
+.asset-sub{font-size:10px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
+.asset-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;}
+.asset-val.up{color:var(--green);}
+.liq{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:500;}
+.liq-y{background:rgba(46,204,138,0.15);color:var(--green);}
+.liq-n{background:rgba(245,166,35,0.15);color:var(--amber);}
+.liq-r{background:rgba(107,107,128,0.2);color:var(--muted);}
+@media(max-width:700px){.asset-row{grid-template-columns:1.5fr 1fr 1fr;}.hm{display:none;}}
+
+/* CASHFLOW */
+.flow-section-title{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:'DM Mono',monospace;padding:10px 0 4px;}
+.flow-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12px;gap:8px;}
+.flow-row:last-child{border-bottom:none;}
+.flow-name{color:var(--text);flex:1;}
+.flow-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.flow-amount{font-family:'DM Mono',monospace;font-weight:500;font-size:12px;min-width:60px;text-align:right;}
+.flow-amount.out{color:var(--red);}
+.flow-amount.in{color:var(--green);}
+.flow-amount.inv{color:var(--accent);}
+.cbs-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:55px;text-align:right;}
+.cbs-header{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+
+/* BAR */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:11px;}
+.bar-label{width:130px;flex-shrink:0;color:var(--muted);font-size:10px;}
+.bar-outer{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.bar-inner{height:100%;border-radius:4px;}
+.bar-val{width:90px;text-align:right;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+
+/* SURPLUS */
+.surplus-bar{background:var(--surface2);border-radius:8px;overflow:hidden;height:8px;margin:10px 0 6px;}
+.surplus-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:8px;}
+
+/* PORTFOLIO TABLE */
+.port-row{display:grid;grid-template-columns:90px 110px 90px 90px 100px 110px 100px;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s;font-size:12px;}
+.port-row:hover{background:rgba(124,106,247,0.04);}
+.port-row.hdr{color:var(--muted);font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;}
+.port-row.hdr:hover{background:transparent;}
+@media(max-width:900px){.port-row{grid-template-columns:80px 90px 80px 80px 90px;}.hm2{display:none;}}
+@media(max-width:600px){.port-row{grid-template-columns:70px 80px 75px;}.hm3{display:none;}}
+
+.ticker{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;padding:3px 7px;border-radius:5px;display:inline-block;}
+.t-ai{background:rgba(124,106,247,0.15);color:var(--accent);}
+.t-etf{background:rgba(201,168,76,0.15);color:var(--gold);}
+.t-new{background:rgba(46,204,138,0.15);color:var(--green);}
+.t-space{background:rgba(78,205,196,0.15);color:var(--accent2);}
+.t-watch{background:rgba(245,166,35,0.12);color:var(--amber);}
+.t-semi{background:rgba(255,92,92,0.12);color:var(--red);}
+.t-quantum{background:rgba(107,107,128,0.2);color:var(--muted);}
+.t-saas{background:rgba(46,204,138,0.1);color:#7affd4;}
+.t-fintech{background:rgba(201,168,76,0.1);color:#ffd97a;}
+
+.lp{font-family:'DM Mono',monospace;font-size:12px;}
+.lp.load{color:var(--muted);font-size:10px;}
+.up{color:var(--green);}
+.dn{color:var(--red);}
+.entry-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--amber);}
+
+/* TAG LABEL */
+.ind-tag{font-size:9px;font-family:'DM Mono',monospace;font-weight:500;}
+
+/* PROJECTIONS */
+.proj-controls{background:var(--surface2);border-radius:12px;padding:18px;margin-bottom:14px;}
+.slider-group{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+@media(max-width:600px){.slider-group{grid-template-columns:1fr;}}
+.slider-label{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.slider-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent);margin-bottom:6px;}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 3px rgba(124,106,247,0.2);}
+
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+@media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
+.proj-label{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;}
+.proj-value{font-family:'DM Serif Display',serif;font-size:clamp(18px,3vw,26px);margin-bottom:4px;}
+.proj-gain{font-size:11px;font-family:'DM Mono',monospace;}
+.proj-card.conservative .proj-value{color:var(--muted);}
+.proj-card.base .proj-value{color:var(--accent);}
+.proj-card.bull .proj-value{color:var(--green);}
+.proj-card.base{border-color:rgba(124,106,247,0.3);}
+
+.milestone-row{display:grid;grid-template-columns:70px 1fr 120px 140px;gap:10px;align-items:center;margin-bottom:10px;font-size:12px;}
+@media(max-width:600px){.milestone-row{grid-template-columns:60px 1fr 100px;}}
+.m-year{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+.m-bar-outer{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.m-bar-inner{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.m-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;text-align:right;}
+.m-note{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
+@media(max-width:600px){.m-note{display:none;}}
+
+/* NEXT MOVES */
+.opp-row{display:grid;grid-template-columns:28px 90px 1fr 70px 50px;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;transition:background 0.15s;}
+.opp-row:hover{background:rgba(255,255,255,0.02);}
+.opp-row:last-child{border-bottom:none;}
+.opp-rank{font-family:'DM Serif Display',serif;font-size:18px;color:var(--border);}
+.opp-ticker-name{font-size:12px;}
+.opp-ticker-label{font-weight:700;font-family:'DM Mono',monospace;color:var(--text);}
+.opp-company{font-size:10px;color:var(--muted);}
+.opp-insight{font-size:11px;color:var(--muted);line-height:1.4;}
+.score-pill{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;text-align:center;}
+.sc-hi{background:rgba(46,204,138,0.15);color:var(--green);}
+.sc-med{background:rgba(124,106,247,0.15);color:var(--accent);}
+.sc-lo{background:rgba(245,166,35,0.15);color:var(--amber);}
+.opp-action{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-align:right;}
+
+footer{text-align:center;padding:20px 0 36px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:8px;}
+footer span{color:var(--accent);}
+
+.fade-in{opacity:0;animation:fadeIn 0.5s forwards;}
+@keyframes fadeIn{to{opacity:1;}}
+.fade-in:nth-child(1){animation-delay:0.05s;}
+.fade-in:nth-child(2){animation-delay:0.1s;}
+.fade-in:nth-child(3){animation-delay:0.15s;}
+.fade-in:nth-child(4){animation-delay:0.2s;}
+</style>
+</head>
+<body>
+
+<!-- RATES BAR -->
+<div class="rates-bar">
+  <div class="rate-item"><span>EUR/USD</span><span class="rate-val" id="r-eurusd">—</span></div>
+  <div class="rate-item"><span>EUR/TRY</span><span class="rate-val" id="r-eurtry">—</span></div>
+  <div class="rate-item"><span>USD/TRY</span><span class="rate-val" id="r-usdtry">—</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <div class="live-dot" id="live-dot" style="background:var(--amber);"></div>
+    <span id="last-upd" style="font-size:10px;">Connecting...</span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🐕</div>
+      <div>
+        <h1>Watch<span>Dog</span></h1>
+        <p>Personal Wealth Dashboard · Netherlands · April 2026</p>
+      </div>
+    </div>
+    <div class="currency-toggle">
+      <button class="currency-btn active" onclick="setCurrency('EUR')">€ EUR</button>
+      <button class="currency-btn" onclick="setCurrency('USD')">$ USD</button>
+      <button class="currency-btn" onclick="setCurrency('TRY')">₺ TRY</button>
+    </div>
+  </div>
+</header>
+
+<div class="main-padding"><div class="container">
+
+<!-- WEALTH OVERVIEW -->
+<div class="section">
+  <div class="section-title">Wealth Overview</div>
+  <div class="grid-4">
+    <div class="card card-accent fade-in">
+      <div class="card-label">Total Wealth</div>
+      <div class="card-value" id="c-total">—</div>
+      <div class="card-sub">All assets combined</div>
+    </div>
+    <div class="card card-green fade-in">
+      <div class="card-label">Liquid Assets</div>
+      <div class="card-value" id="c-liquid">—</div>
+      <div class="card-sub up">Available if needed</div>
+    </div>
+    <div class="card card-amber fade-in">
+      <div class="card-label">Locked — Unilever</div>
+      <div class="card-value" id="c-locked">—</div>
+      <div class="card-sub amber">Vests 2027–28 · ~3.5% div</div>
+    </div>
+    <div class="card card-gold fade-in">
+      <div class="card-label">Monthly Surplus</div>
+      <div class="card-value" id="c-surplus">—</div>
+      <div class="card-sub up">After all expenses</div>
+    </div>
+  </div>
+
+  <!-- ASSET TABLE -->
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="asset-row hdr">
+      <div>Asset</div><div>Value</div><div>Annual Return</div>
+      <div class="hm">Currency</div><div>Status</div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">Unilever Shares</div><div class="asset-sub">Corporate bonus scheme · 3yr lock · ULVR</div></div>
+      <div class="asset-val" id="av-unilever">—</div>
+      <div class="asset-val up">~3.5% div/yr</div>
+      <div class="asset-sub hm">USD / GBP</div>
+      <div><span class="liq liq-n">Locked</span></div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">Eurobonds</div><div class="asset-sub">USD fixed income · semi-annual interest</div></div>
+      <div class="asset-val" id="av-bonds">—</div>
+      <div class="asset-val up">6–7% / year</div>
+      <div class="asset-sub hm">USD</div>
+      <div><span class="liq liq-y">Liquid</span></div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">İşbank İLH Fon</div><div class="asset-sub">TRY bond fund · covers Turkish expenses</div></div>
+      <div class="asset-val" id="av-ilh">—</div>
+      <div class="asset-val up">Monthly dist.</div>
+      <div class="asset-sub hm">TRY</div>
+      <div><span class="liq liq-y">Liquid</span></div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">Emergency Cash</div><div class="asset-sub">6+ months expenses · never touch</div></div>
+      <div class="asset-val" id="av-cash">—</div>
+      <div class="asset-val" style="color:var(--muted);">Safety net</div>
+      <div class="asset-sub hm">EUR</div>
+      <div><span class="liq liq-r">Reserved</span></div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">ABN AMRO ETF</div><div class="asset-sub">€250/month DCA · 1+ year running</div></div>
+      <div class="asset-val" id="av-abn">—</div>
+      <div class="asset-val up">DCA compounding</div>
+      <div class="asset-sub hm">EUR</div>
+      <div><span class="liq liq-y">Liquid</span></div>
+    </div>
+    <div class="asset-row">
+      <div><div class="asset-name">Revolut Portfolio</div><div class="asset-sub">EQQB · NVDA · MSFT · AMZN · GOOGL · META + new</div></div>
+      <div class="asset-val" id="av-revolut">—</div>
+      <div class="asset-val up" id="av-revolut-pnl">Loading P&L...</div>
+      <div class="asset-sub hm">USD / EUR</div>
+      <div><span class="liq liq-y">Liquid</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY CASH FLOW -->
+<div class="section">
+  <div class="section-title">Monthly Cash Flow</div>
+  <div class="grid-2">
+
+    <!-- EXPENSES -->
+    <div class="card" style="padding:16px 18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:600;">Expenses</div>
+        <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--red);">€9,357</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:4px;">
+        <span class="cbs-header" style="min-width:60px;text-align:right;">You</span>
+        <span class="cbs-header" style="min-width:70px;text-align:right;">CBS NL avg</span>
+      </div>
+
+      <div class="flow-section-title">🏠 Housing & Finance</div>
+      <div class="flow-row"><div class="flow-name">ABN Amro Mortgage</div><div class="flow-right"><span class="flow-amount out">€2,060</span><span class="cbs-val">€1,100</span></div></div>
+      <div class="flow-row"><div class="flow-name">Tesla Finance</div><div class="flow-right"><span class="flow-amount out">€339</span><span class="cbs-val">€250</span></div></div>
+      <div class="flow-row"><div class="flow-name">Taxes (Vergiler)</div><div class="flow-right"><span class="flow-amount out">€200</span><span class="cbs-val">€180</span></div></div>
+      <div class="flow-row"><div class="flow-name">Bank fees</div><div class="flow-right"><span class="flow-amount out">€73</span><span class="cbs-val">€30</span></div></div>
+
+      <div class="flow-section-title">🛡️ Insurance</div>
+      <div class="flow-row"><div class="flow-name">Allianz</div><div class="flow-right"><span class="flow-amount out">€400</span><span class="cbs-val">€180</span></div></div>
+      <div class="flow-row"><div class="flow-name">OHRA</div><div class="flow-right"><span class="flow-amount out">€110</span><span class="cbs-val">€140</span></div></div>
+      <div class="flow-row"><div class="flow-name">Zilveren (health)</div><div class="flow-right"><span class="flow-amount out">€303</span><span class="cbs-val">€160</span></div></div>
+
+      <div class="flow-section-title">📚 Education</div>
+      <div class="flow-row"><div class="flow-name">Pera Okul (school)</div><div class="flow-right"><span class="flow-amount out">€1,577</span><span class="cbs-val">€200</span></div></div>
+      <div class="flow-row"><div class="flow-name">Tilburg University</div><div class="flow-right"><span class="flow-amount out">€1,200</span><span class="cbs-val">€83</span></div></div>
+
+      <div class="flow-section-title">🍽️ Food & Living</div>
+      <div class="flow-row"><div class="flow-name">Groceries + fish</div><div class="flow-right"><span class="flow-amount out">€900</span><span class="cbs-val">€550</span></div></div>
+      <div class="flow-row"><div class="flow-name">Dining out + orders</div><div class="flow-right"><span class="flow-amount out">€500</span><span class="cbs-val">€220</span></div></div>
+      <div class="flow-row"><div class="flow-name">Shopping + gifts</div><div class="flow-right"><span class="flow-amount out">€500</span><span class="cbs-val">€280</span></div></div>
+      <div class="flow-row"><div class="flow-name">Cleaning (Temizlik)</div><div class="flow-right"><span class="flow-amount out">€360</span><span class="cbs-val">€80</span></div></div>
+      <div class="flow-row"><div class="flow-name">Leisure (bale+kafe+gym+dog)</div><div class="flow-right"><span class="flow-amount out">€150</span><span class="cbs-val">€130</span></div></div>
+
+      <div class="flow-section-title">🚗 Transport</div>
+      <div class="flow-row"><div class="flow-name">Car (parking+electric+tax)</div><div class="flow-right"><span class="flow-amount out">€160</span><span class="cbs-val">€350</span></div></div>
+
+      <div class="flow-section-title">✈️ Holidays</div>
+      <div class="flow-row"><div class="flow-name">Travel (monthly avg)</div><div class="flow-right"><span class="flow-amount out">€1,650</span><span class="cbs-val">€280</span></div></div>
+
+      <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.6;">
+          📌 CBS source: Statline 2024 · household income €7,000–14,000/mo · homeowner · 2+ children · NL avg includes dog costs ~€100/mo
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- INCOME -->
+      <div class="card" style="padding:16px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:600;">Income</div>
+          <div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--green);">€13,567</div>
+        </div>
+        <div class="flow-row"><div class="flow-name">Salary (Maas)</div><div class="flow-amount in">€11,500</div></div>
+        <div class="flow-row"><div class="flow-name">Bonus (monthly avg)</div><div class="flow-amount in">€1,500</div></div>
+        <div class="flow-row"><div class="flow-name">School refund (pera iade okul)</div><div class="flow-amount in">€477</div></div>
+        <div class="flow-row"><div class="flow-name">Government refund</div><div class="flow-amount in">€90</div></div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;display:flex;justify-content:space-between;">
+          <span style="font-size:11px;color:var(--muted);">Annual gross</span>
+          <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);">€162,804</span>
+        </div>
+      </div>
+
+      <!-- INVESTMENTS -->
+      <div class="card" style="padding:16px 18px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Regular Investments</div>
+        <div class="flow-row"><div class="flow-name">ABN AMRO ETF (DCA)</div><div class="flow-amount inv">€250</div></div>
+        <div class="flow-row"><div class="flow-name">EQQB / QQQ (DCA)</div><div class="flow-amount inv">€200</div></div>
+        <div class="flow-row"><div class="flow-name">One-off stocks (avg)</div><div class="flow-amount inv">€100</div></div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;display:flex;justify-content:space-between;">
+          <span style="font-size:11px;color:var(--muted);">Total monthly invested</span>
+          <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);">€550</span>
+        </div>
+      </div>
+
+      <!-- SURPLUS -->
+      <div class="card card-green" style="padding:18px;">
+        <div class="card-label">Monthly Surplus — KALAN PARA</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:34px;color:var(--green);margin:6px 0 3px;">€2,010</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;">€24,120/yr · 14.8% savings rate</div>
+        <div class="surplus-bar"><div class="surplus-fill" style="width:14.8%;"></div></div>
+        <div style="font-size:11px;color:var(--amber);margin-top:10px;font-family:'DM Mono',monospace;">⚡ €1,460/mo idle after current investments</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:5px;">Raising EQQB to €500/mo costs only €300 more</div>
+      </div>
+
+      <!-- EXPENSE BREAKDOWN -->
+      <div class="card" style="padding:16px 18px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;">Expense Breakdown</div>
+        <div class="bar-row">
+          <div class="bar-label">Education</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:30%;background:var(--accent);"></div></div>
+          <div class="bar-val">€2,777 · 30%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Housing & Finance</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:29%;background:var(--red);"></div></div>
+          <div class="bar-val">€2,672 · 29%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Food & Lifestyle</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:22%;background:var(--amber);"></div></div>
+          <div class="bar-val">€2,010 · 21%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Holidays</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:18%;background:var(--gold);"></div></div>
+          <div class="bar-val">€1,650 · 18%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Insurance</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:9%;background:var(--accent2);"></div></div>
+          <div class="bar-val">€813 · 9%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Transport</div>
+          <div class="bar-outer"><div class="bar-inner" style="width:2%;background:var(--green);"></div></div>
+          <div class="bar-val">€160 · 2%</div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;">Includes Pera school, Tilburg Uni, bale, gym, dog care, Hillside/Kayak holidays</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE PORTFOLIO -->
+<div class="section">
+  <div class="section-title">Live Portfolio</div>
+  <div class="card" style="padding:0;overflow:hidden;overflow-x:auto;">
+    <div class="port-row hdr">
+      <div>Ticker</div><div>Industry</div><div>Live Price</div>
+      <div>Shares</div><div>Position Value</div>
+      <div class="hm2">Avg Cost</div><div class="hm2">Entry Target</div>
+    </div>
+    <!-- EQQB -->
+    <div class="port-row">
+      <div><span class="ticker t-etf">EQQB</span></div>
+      <div class="ind-tag" style="color:var(--gold);">Nasdaq-100 ETF</div>
+      <div class="lp" id="p-EQQB" style="color:var(--muted);">€373 est.</div>
+      <div class="lp">9.22</div>
+      <div class="lp up" id="pv-EQQB">€3,438</div>
+      <div class="lp hm2" style="color:var(--muted);">€373</div>
+      <div class="entry-price hm2">DCA €200/mo</div>
+    </div>
+    <!-- NVDA -->
+    <div class="port-row">
+      <div><span class="ticker t-semi">NVDA</span></div>
+      <div class="ind-tag" style="color:var(--red);">AI Chips</div>
+      <div class="lp load" id="p-NVDA">Loading...</div>
+      <div class="lp">20.29</div>
+      <div class="lp" id="pv-NVDA">—</div>
+      <div class="lp hm2" style="color:var(--muted);">$180</div>
+      <div class="entry-price hm2">Wait &lt;$175</div>
+    </div>
+    <!-- GOOGL -->
+    <div class="port-row">
+      <div><span class="ticker t-ai">GOOGL</span></div>
+      <div class="ind-tag" style="color:var(--accent);">Cloud / AI</div>
+      <div class="lp load" id="p-GOOGL">Loading...</div>
+      <div class="lp">9.36</div>
+      <div class="lp" id="pv-GOOGL">—</div>
+      <div class="lp hm2" style="color:var(--muted);">$309</div>
+      <div class="entry-price hm2">Hold</div>
+    </div>
+    <!-- MSFT -->
+    <div class="port-row">
+      <div><span class="ticker t-ai">MSFT</span></div>
+      <div class="ind-tag" style="color:var(--accent);">Cloud / AI</div>
+      <div class="lp load" id="p-MSFT">Loading...</div>
+      <div class="lp">5.07</div>
+      <div class="lp" id="pv-MSFT">—</div>
+      <div class="lp hm2" style="color:var(--muted);">$364</div>
+      <div class="entry-price hm2">Add &lt;$380</div>
+    </div>
+    <!-- AMZN -->
+    <div class="port-row">
+      <div><span class="ticker t-ai">AMZN</span></div>
+      <div class="ind-tag" style="color:var(--accent);">Cloud / E-comm</div>
+      <div class="lp load" id="p-AMZN">Loading...</div>
+      <div class="lp">6.41</div>
+      <div class="lp" id="pv-AMZN">—</div>
+      <div class="lp hm2" style="color:var(--muted);">$201</div>
+      <div class="entry-price hm2">Hold</div>
+    </div>
+    <!-- META -->
+    <div class="port-row">
+      <div><span class="ticker t-ai">META</span></div>
+      <div class="ind-tag" style="color:var(--accent);">Social / AI Ads</div>
+      <div class="lp load" id="p-META">Loading...</div>
+      <div class="lp">1.50</div>
+      <div class="lp" id="pv-META">—</div>
+      <div class="lp hm2" style="color:var(--muted);">$526</div>
+      <div class="entry-price hm2">Add &lt;$650</div>
+    </div>
+    <!-- INTU -->
+    <div class="port-row">
+      <div><span class="ticker t-fintech">INTU</span></div>
+      <div class="ind-tag" style="color:#ffd97a;">Fintech SaaS</div>
+      <div class="lp load" id="p-INTU">Loading...</div>
+      <div class="lp" style="color:var(--green);">New ✦</div>
+      <div class="lp" id="pv-INTU" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Buy ~$393</div>
+    </div>
+    <!-- CRM -->
+    <div class="port-row">
+      <div><span class="ticker t-saas">CRM</span></div>
+      <div class="ind-tag" style="color:#7affd4;">Enterprise SaaS</div>
+      <div class="lp load" id="p-CRM">Loading...</div>
+      <div class="lp" style="color:var(--green);">New ✦</div>
+      <div class="lp" id="pv-CRM" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Buy ~$182</div>
+    </div>
+    <!-- RKLB -->
+    <div class="port-row">
+      <div><span class="ticker t-space">RKLB</span></div>
+      <div class="ind-tag" style="color:var(--accent2);">Space Infra</div>
+      <div class="lp load" id="p-RKLB">Loading...</div>
+      <div class="lp" style="color:var(--green);">New ✦</div>
+      <div class="lp" id="pv-RKLB" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Buy ~$83</div>
+    </div>
+    <!-- ASML WATCH -->
+    <div class="port-row">
+      <div><span class="ticker t-watch">ASML</span></div>
+      <div class="ind-tag" style="color:var(--amber);">Semiconductor Eq.</div>
+      <div class="lp load" id="p-ASML">Loading...</div>
+      <div class="lp" style="color:var(--muted);">Watching</div>
+      <div class="lp" id="pv-ASML" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Wait €1,200</div>
+    </div>
+    <!-- IONQ WATCH -->
+    <div class="port-row">
+      <div><span class="ticker t-quantum">IONQ</span></div>
+      <div class="ind-tag" style="color:var(--muted);">Quantum Computing</div>
+      <div class="lp load" id="p-IONQ">Loading...</div>
+      <div class="lp" style="color:var(--muted);">Watching</div>
+      <div class="lp" id="pv-IONQ" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Wait for proof</div>
+    </div>
+    <!-- LUNR -->
+    <div class="port-row">
+      <div><span class="ticker t-watch">LUNR</span></div>
+      <div class="ind-tag" style="color:var(--amber);">Lunar Infra</div>
+      <div class="lp load" id="p-LUNR">Loading...</div>
+      <div class="lp" style="color:var(--muted);">Watching</div>
+      <div class="lp" id="pv-LUNR" style="color:var(--muted);">—</div>
+      <div class="lp hm2" style="color:var(--muted);">—</div>
+      <div class="entry-price hm2">Skip — insiders sell</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECTIONS -->
+<div class="section">
+  <div class="section-title">Growth Projections</div>
+  <div class="proj-controls">
+    <div class="slider-group">
+      <div>
+        <div class="slider-label">Years</div>
+        <div class="slider-val" id="sv-years">10 yrs</div>
+        <input type="range" id="sl-years" min="1" max="20" value="10" oninput="updateProj()">
+      </div>
+      <div>
+        <div class="slider-label">Annual Return</div>
+        <div class="slider-val" id="sv-rate">12%</div>
+        <input type="range" id="sl-rate" min="4" max="25" value="12" oninput="updateProj()">
+      </div>
+      <div>
+        <div class="slider-label">Monthly DCA</div>
+        <div class="slider-val" id="sv-dca">€450</div>
+        <input type="range" id="sl-dca" min="200" max="2000" step="50" value="450" oninput="updateProj()">
+      </div>
+    </div>
+  </div>
+
+  <div class="proj-grid">
+    <div class="proj-card conservative">
+      <div class="proj-label">Conservative · 7%/yr</div>
+      <div class="proj-value" id="pj-cons">—</div>
+      <div class="proj-gain" style="color:var(--muted);" id="pj-cons-g">—</div>
+    </div>
+    <div class="proj-card base">
+      <div class="proj-label">Base Case · selected %</div>
+      <div class="proj-value" id="pj-base">—</div>
+      <div class="proj-gain" style="color:var(--accent);" id="pj-base-g">—</div>
+    </div>
+    <div class="proj-card bull">
+      <div class="proj-label">Bull Case · 18%/yr</div>
+      <div class="proj-value" id="pj-bull">—</div>
+      <div class="proj-gain" style="color:var(--green);" id="pj-bull-g">—</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:20px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Wealth Milestones — Base Case</div>
+    <div id="milestones"></div>
+  </div>
+</div>
+
+<!-- NEXT MOVES -->
+<div class="section">
+  <div class="section-title">Next Investment Moves</div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="opp-row" style="background:rgba(46,204,138,0.04);">
+      <div class="opp-rank">1</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">INTU</div><div class="opp-company">Intuit Inc · Fintech SaaS</div></div>
+      <div class="opp-insight">RSI ~33 · Down 52% from $813 peak · Revenue +17% YoY · 0 Sell ratings · AI agents monetising · IRS threat defused · €1,200 → ~3 shares</div>
+      <div><span class="score-pill sc-hi">9.2/10</span></div>
+      <div class="opp-action">Buy now</div>
+    </div>
+    <div class="opp-row">
+      <div class="opp-rank">2</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">CRM</div><div class="opp-company">Salesforce · Enterprise SaaS</div></div>
+      <div class="opp-insight">RSI ~26 · Near 52w low · Agentforce AI traction · Insider buying · +51% analyst upside · €300 → ~1-2 shares</div>
+      <div><span class="score-pill sc-hi">8.8/10</span></div>
+      <div class="opp-action">Buy now</div>
+    </div>
+    <div class="opp-row">
+      <div class="opp-rank">3</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">RKLB</div><div class="opp-company">Rocket Lab · Space Infra</div></div>
+      <div class="opp-insight">Revenue +46% · Neutron rocket upcoming · SpaceX IPO hype lifts sector · No heavy insider selling · €500 starter</div>
+      <div><span class="score-pill sc-med">7.0/10</span></div>
+      <div class="opp-action">After Apr 22</div>
+    </div>
+    <div class="opp-row">
+      <div class="opp-rank">4</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">VRT</div><div class="opp-company">Vertiv · AI Power Infra</div></div>
+      <div class="opp-insight">Earnings Apr 22 · RSI 66 · Heavy insider selling · Best entry $240-250 post-earnings dip · Data center UPS leader</div>
+      <div><span class="score-pill sc-lo">5.8/10</span></div>
+      <div class="opp-action">Watch Apr 22</div>
+    </div>
+    <div class="opp-row">
+      <div class="opp-rank">5</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">ASML</div><div class="opp-company">ASML · Semiconductor Eq.</div></div>
+      <div class="opp-insight">Only EUV maker globally · $45B backlog · RSI 76 overbought · Wait for €1,200 entry · NL company — buy on Euronext</div>
+      <div><span class="score-pill sc-lo">5.5/10</span></div>
+      <div class="opp-action">Alert €1,200</div>
+    </div>
+    <div class="opp-row" style="border-bottom:none;background:rgba(124,106,247,0.04);">
+      <div class="opp-rank">★</div>
+      <div class="opp-ticker-name"><div class="opp-ticker-label">EQQB DCA</div><div class="opp-company">Raise €200 → €500/mo</div></div>
+      <div class="opp-insight">Only €300 more from €2,010 surplus · Doubles 10yr outcome · Most impactful single move in entire plan · No timing risk</div>
+      <div><span class="score-pill sc-hi">10/10</span></div>
+      <div class="opp-action">Any time</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  🐕 WatchDog · Not financial advice · Personal reference only<br>
+  Prices: Finnhub API · Rates: Frankfurter API · Auto-refresh every 60s<br>
+  <span>toroscemre.github.io/finance-dashboard</span>
+</footer>
+
+</div></div>
+
+<script>
+const FKEY = 'd7hpv81r01qirk40j0p0d7hpv81r01qirk40j0pg';
+let cur = 'EUR';
+let R = {eurusd:1.1494, eurtry:38.5, usdtry:33.5};
+let prices = {};
+
+// ── POSITIONS ──
+const POS = {
+  NVDA:  {shares:20.29, avg:180},
+  GOOGL: {shares:9.36,  avg:309},
+  MSFT:  {shares:5.07,  avg:364},
+  AMZN:  {shares:6.41,  avg:201},
+  META:  {shares:1.50,  avg:526},
+  INTU:  {shares:0,     avg:0},
+  CRM:   {shares:0,     avg:0},
+  RKLB:  {shares:0,     avg:0},
+  ASML:  {shares:0,     avg:0},
+  IONQ:  {shares:0,     avg:0},
+  LUNR:  {shares:0,     avg:0},
+};
+const EQQB_SHARES = 9.22;
+const EQQB_AVG = 373; // EUR
+
+// Fixed assets in USD unless noted
+const ASSETS = {
+  unilever: {usd:50000},
+  bonds:    {usd:25000},
+  ilh:      {usd:25000},
+  cash:     {eur:20000},
+  abn:      {eur:5800},
+};
+
+// ── FORMAT ──
+function fmt(n, decimals=0) {
+  if (n===undefined||n===null||isNaN(n)) return '—';
+  if (Math.abs(n)>=1000000) return (n/1000000).toFixed(2)+'M';
+  if (Math.abs(n)>=1000) return n.toLocaleString('nl-NL',{maximumFractionDigits:decimals});
+  return n.toFixed(decimals);
+}
+
+function disp(eur, prefix=true) {
+  if (cur==='EUR') return (prefix?'€':'')+fmt(eur);
+  if (cur==='USD') return (prefix?'$':'')+fmt(eur*R.eurusd);
+  if (cur==='TRY') return (prefix?'₺':'')+fmt(eur*R.eurtry);
+}
+
+function usdDisp(usd) { return disp(usd/R.eurusd); }
+
+function setCurrency(c) {
+  cur=c;
+  document.querySelectorAll('.currency-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.includes(c));
+  });
+  updateDisplay();
+  updateProj();
+}
+
+// ── RATES ──
+async function fetchRates() {
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD,TRY',
+      {cache:'no-store'});
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const d = await res.json();
+    R.eurusd = d.rates.USD;
+    R.eurtry = d.rates.TRY;
+    R.usdtry = d.rates.TRY / d.rates.USD;
+    document.getElementById('r-eurusd').textContent = R.eurusd.toFixed(4);
+    document.getElementById('r-eurtry').textContent = R.eurtry.toFixed(2);
+    document.getElementById('r-usdtry').textContent = R.usdtry.toFixed(2);
+    document.getElementById('r-eurusd').className='rate-val';
+    const now = new Date();
+    document.getElementById('last-upd').textContent =
+      'Live · '+now.toLocaleTimeString('en-NL',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('live-dot').style.background='var(--green)';
+    return true;
+  } catch(e) {
+    document.getElementById('r-eurusd').textContent='1.1494';
+    document.getElementById('r-eurtry').textContent='38.50';
+    document.getElementById('r-usdtry').textContent='33.50';
+    document.getElementById('r-eurusd').className='rate-val rate-err';
+    document.getElementById('last-upd').textContent='Rates cached · API error';
+    document.getElementById('live-dot').style.background='var(--amber)';
+    return false;
+  }
+}
+
+// ── STOCK PRICES ──
+async function fetchPrice(sym) {
+  try {
+    const r = await fetch(
+      `https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FKEY}`,
+      {cache:'no-store'});
+    const d = await r.json();
+    return (d && d.c && d.c>0) ? d.c : null;
+  } catch(e){ return null; }
+}
+
+async function fetchAllPrices() {
+  const syms = ['NVDA','GOOGL','MSFT','AMZN','META','INTU','CRM','RKLB','ASML','IONQ','LUNR'];
+  for (const s of syms) {
+    const p = await fetchPrice(s);
+    if (!p) continue;
+    prices[s] = p;
+    const el = document.getElementById('p-'+s);
+    if (el) {
+      el.textContent = '$'+p.toFixed(2);
+      el.className = 'lp';
+      el.style.color = 'var(--text)';
+    }
+    // Position value
+    const pos = POS[s];
+    const pvEl = document.getElementById('pv-'+s);
+    if (pvEl && pos && pos.shares>0) {
+      const valUSD = pos.shares * p;
+      pvEl.textContent = usdDisp(valUSD);
+      if (pos.avg>0) {
+        const pnl = (p-pos.avg)*pos.shares;
+        pvEl.style.color = pnl>=0?'var(--green)':'var(--red)';
+      }
+    } else if (pvEl && pos && pos.shares===0) {
+      pvEl.textContent = '—';
+    }
+  }
+  updateDisplay();
+}
+
+// ── DISPLAY UPDATE ──
+function updateDisplay() {
+  // Revolut total (USD)
+  let revUSD = EQQB_SHARES * EQQB_AVG / R.eurusd; // EQQB in EUR → USD
+  for (const [s,p] of Object.entries(POS)) {
+    if (p.shares>0) revUSD += p.shares * (prices[s]||p.avg||0);
+  }
+  const revEUR = revUSD / R.eurusd;
+
+  const unilEUR = ASSETS.unilever.usd / R.eurusd;
+  const bondsEUR = ASSETS.bonds.usd / R.eurusd;
+  const ilhEUR = ASSETS.ilh.usd / R.eurusd;
+  const cashEUR = ASSETS.cash.eur;
+  const abnEUR = ASSETS.abn.eur;
+
+  const liquidEUR = bondsEUR + ilhEUR + cashEUR + abnEUR + revEUR;
+  const lockedEUR = unilEUR;
+  const totalEUR = liquidEUR + lockedEUR;
+
+  document.getElementById('c-total').textContent = disp(totalEUR);
+  document.getElementById('c-liquid').textContent = disp(liquidEUR);
+  document.getElementById('c-locked').textContent = disp(lockedEUR);
+  document.getElementById('c-surplus').textContent = disp(2010);
+
+  document.getElementById('av-unilever').textContent = usdDisp(ASSETS.unilever.usd);
+  document.getElementById('av-bonds').textContent = usdDisp(ASSETS.bonds.usd);
+  document.getElementById('av-ilh').textContent = usdDisp(ASSETS.ilh.usd);
+  document.getElementById('av-cash').textContent = disp(cashEUR);
+  document.getElementById('av-abn').textContent = disp(abnEUR);
+  document.getElementById('av-revolut').textContent = disp(revEUR);
+
+  // EQQB position value
+  const eqqbVal = EQQB_SHARES * EQQB_AVG;
+  document.getElementById('pv-EQQB').textContent = disp(eqqbVal);
+
+  // Revolut P&L
+  const costUSD = EQQB_SHARES*EQQB_AVG/R.eurusd +
+    Object.entries(POS).reduce((s,[k,v])=>s+(v.shares*(v.avg||0)),0);
+  const pnlUSD = revUSD - costUSD;
+  const pnlPct = costUSD>0 ? (pnlUSD/costUSD*100).toFixed(1) : 0;
+  const sign = pnlUSD>=0?'+':'';
+  const pnlEl = document.getElementById('av-revolut-pnl');
+  if (pnlEl) {
+    pnlEl.textContent = sign+usdDisp(pnlUSD)+' ('+sign+pnlPct+'%)';
+    pnlEl.style.color = pnlUSD>=0?'var(--green)':'var(--red)';
+  }
+}
+
+// ── PROJECTIONS ──
+function compound(principal, monthlyAdd, annualRate, years) {
+  const r = annualRate/100/12;
+  let v = principal;
+  for (let i=0;i<years*12;i++) v = v*(1+r)+monthlyAdd;
+  return v;
+}
+
+function fmtProj(eur) {
+  if (cur==='EUR') return '€'+fmt(eur);
+  if (cur==='USD') return '$'+fmt(eur*R.eurusd);
+  if (cur==='TRY') return '₺'+fmt(eur*R.eurtry);
+}
+
+// ── MILESTONE NOTES ──
+function milestoneNote(val, years, today) {
+  const gain = val - today;
+  if (years===1) return `+${fmtProj(gain)} growth · DCA compounding starts`;
+  if (years===2) return 'Unilever may start vesting';
+  if (years===3) return 'Unilever fully vested · Major inflection';
+  if (years===5) return 'Review: raise DCA or add positions';
+  if (years===10) return 'Target wealth milestone · Semi-retire option';
+  if (years===15) return 'Full financial independence zone';
+  if (years===20) return 'Legacy wealth territory';
+  return `${fmtProj(gain)} above today`;
+}
+
+function updateProj() {
+  const years = parseInt(document.getElementById('sl-years').value);
+  const rate  = parseInt(document.getElementById('sl-rate').value);
+  const dca   = parseInt(document.getElementById('sl-dca').value);
+
+  document.getElementById('sv-years').textContent = years+(years===1?' yr':' yrs');
+  document.getElementById('sv-rate').textContent  = rate+'%';
+  document.getElementById('sv-dca').textContent   = '€'+dca;
+
+  // Current investable wealth (liquid, excl emergency cash and locked)
+  const revUSD = Object.entries(POS).reduce((s,[k,v])=>s+(v.shares*(prices[k]||v.avg||0)),0)
+               + EQQB_SHARES*EQQB_AVG/R.eurusd;
+  const startInvEUR = (ASSETS.bonds.usd + ASSETS.ilh.usd)/R.eurusd
+                    + ASSETS.abn.eur + revUSD/R.eurusd;
+
+  // Unilever grows separately at 3.5%/yr (dividends reinvested)
+  const unilEUR = ASSETS.unilever.usd / R.eurusd;
+
+  const cons = compound(startInvEUR, dca, 7,    years) + unilEUR*Math.pow(1.035,years);
+  const base = compound(startInvEUR, dca, rate, years) + unilEUR*Math.pow(1.035,years);
+  const bull = compound(startInvEUR, dca, 18,   years) + unilEUR*Math.pow(1.035,years);
+
+  const todayTotal = startInvEUR + unilEUR + ASSETS.cash.eur;
+
+  const gain = (v) => {
+    const g=v-todayTotal;
+    const pct=(g/todayTotal*100).toFixed(0);
+    return '+'+fmtProj(g)+' (+'+pct+'%)';
+  };
+
+  document.getElementById('pj-cons').textContent   = fmtProj(cons);
+  document.getElementById('pj-base').textContent   = fmtProj(base);
+  document.getElementById('pj-bull').textContent   = fmtProj(bull);
+  document.getElementById('pj-cons-g').textContent = gain(cons);
+  document.getElementById('pj-base-g').textContent = gain(base);
+  document.getElementById('pj-bull-g').textContent = gain(bull);
+
+  // Milestones — always start >= today
+  const mYears = [1,2,3,5,10,15,20];
+  const maxVal = compound(startInvEUR, dca, rate, 20) + unilEUR*Math.pow(1.035,20);
+  let html='';
+  mYears.forEach(y=>{
+    const val = compound(startInvEUR, dca, rate, y) + unilEUR*Math.pow(1.035,y);
+    const finalVal = Math.max(val, todayTotal); // never show less than today
+    const barPct = Math.min(100, (finalVal/maxVal)*100);
+    const note = milestoneNote(finalVal, y, todayTotal);
+    html+=`
+    <div class="milestone-row">
+      <div class="m-year">${y} yr${y>1?'s':''}</div>
+      <div class="m-bar-outer"><div class="m-bar-inner" style="width:${barPct}%;"></div></div>
+      <div class="m-val">${fmtProj(finalVal)}</div>
+      <div class="m-note">${note}</div>
+    </div>`;
+  });
+  document.getElementById('milestones').innerHTML=html;
+}
+
+// ── INIT ──
+async function init() {
+  await fetchRates();
+  await fetchAllPrices();
+  updateProj();
+}
+
+init();
+setInterval(async()=>{
+  await fetchRates();
+  await fetchAllPrices();
+}, 60000);
+</script>
+</body>
+</html>

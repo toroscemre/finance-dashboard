@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦅 BirdWatch v2 · April 28, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070d;--surface:#0e0e17;--border:rgba(255,255,255,0.06);
+  --text:#e8e8f0;--muted:#52526a;
+  --green:#2ecc8a;--amber:#f5a623;--red:#ff5263;--purple:#a78bfa;--blue:#4a9eff;--gold:#c9a84c;
+  --buy-bg:rgba(46,204,138,0.07);--buy-b:rgba(46,204,138,0.25);
+  --watch-bg:rgba(245,166,35,0.06);--watch-b:rgba(245,166,35,0.25);
+  --skip-bg:rgba(255,82,99,0.05);--skip-b:rgba(255,82,99,0.22);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;padding:20px;font-size:13px;line-height:1.5;}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at 15% 10%,rgba(46,204,138,0.05) 0%,transparent 50%),
+  radial-gradient(ellipse at 85% 90%,rgba(167,139,250,0.04) 0%,transparent 50%);
+  pointer-events:none;z-index:0;}
+.wrap{max-width:1100px;margin:0 auto;position:relative;z-index:1;}
+
+.header{margin-bottom:24px;}
+.header h1{font-family:'DM Serif Display',serif;font-size:26px;display:flex;align-items:center;gap:10px;}
+.header-meta{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:5px;display:flex;gap:14px;flex-wrap:wrap;}
+.tag{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:3px;padding:2px 7px;}
+
+/* LEGEND */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);}
+.leg{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:7px;height:7px;border-radius:50%;}
+
+/* ZONE HEADER */
+.zone-hdr{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px 8px 0 0;border:1px solid var(--border);}
+.zone-buy-hdr{background:rgba(46,204,138,0.1);border-color:var(--buy-b);}
+.zone-watch-hdr{background:rgba(245,166,35,0.08);border-color:var(--watch-b);}
+.zone-skip-hdr{background:rgba(255,82,99,0.07);border-color:var(--skip-b);}
+.zone-label{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;}
+.zone-buy-hdr .zone-label{color:var(--green);}
+.zone-watch-hdr .zone-label{color:var(--amber);}
+.zone-skip-hdr .zone-label{color:var(--red);}
+.zone-desc{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-left:auto;}
+
+/* STOCK CARD */
+.zone-body{border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;margin-bottom:20px;overflow:hidden;}
+.stock{border-bottom:1px solid var(--border);display:grid;grid-template-columns:200px 1fr;min-height:80px;}
+.stock:last-child{border-bottom:none;}
+.zone-buy .stock-left{background:var(--buy-bg);}
+.zone-watch .stock-left{background:var(--watch-bg);}
+.zone-skip .stock-left{background:var(--skip-bg);}
+
+.stock-left{padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--border);}
+.ticker-row{display:flex;align-items:center;gap:8px;}
+.ticker{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;padding:3px 7px;border-radius:4px;}
+.t-semi{background:rgba(255,160,60,0.15);color:#ffb06e;}
+.t-energy{background:rgba(201,168,76,0.15);color:var(--gold);}
+.t-cyber{background:rgba(255,82,99,0.12);color:#ff9aa5;}
+.t-network{background:rgba(124,106,247,0.15);color:var(--purple);}
+.t-photon{background:rgba(255,200,80,0.12);color:#ffe080;}
+.t-quantum{background:rgba(255,160,60,0.1);color:#ffa060;}
+.sname{font-size:11px;font-weight:600;color:var(--text);}
+.sdesc{font-size:9px;color:var(--muted);margin-top:1px;}
+.price-row{margin-top:6px;}
+.sprice{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--text);}
+.seur{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.ath-row{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;}
+.ath-chip{font-family:'DM Mono',monospace;font-size:9px;padding:2px 5px;border-radius:3px;}
+.ath-chip.red{background:rgba(255,82,99,0.12);color:var(--red);}
+.ath-chip.green{background:rgba(46,204,138,0.12);color:var(--green);}
+.ath-chip.amber{background:rgba(245,166,35,0.12);color:var(--amber);}
+
+.stock-right{padding:10px 14px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;align-items:center;}
+
+/* FUNDAMENTAL CHECKS */
+.check{text-align:center;}
+.check-label{font-size:8px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.check-val{font-size:9px;font-family:'DM Mono',monospace;font-weight:600;line-height:1.3;}
+.check-icon{font-size:11px;display:block;margin-bottom:1px;}
+.pass{color:var(--green);}
+.fail{color:var(--red);}
+.half{color:var(--amber);}
+
+/* RSI */
+.rsi-block{text-align:center;padding:6px 8px;border-radius:5px;font-family:'DM Mono',monospace;}
+.rsi-block.over{background:rgba(255,82,99,0.12);border:1px solid rgba(255,82,99,0.2);}
+.rsi-block.neutral{background:rgba(255,255,255,0.04);border:1px solid var(--border);}
+.rsi-block.under{background:rgba(46,204,138,0.1);border:1px solid rgba(46,204,138,0.2);}
+.rsi-num{font-size:15px;font-weight:700;}
+.rsi-label{font-size:8px;color:var(--muted);text-transform:uppercase;}
+.rsi-block.over .rsi-num{color:var(--red);}
+.rsi-block.neutral .rsi-num{color:var(--text);}
+.rsi-block.under .rsi-num{color:var(--green);}
+
+/* ENTRY */
+.entry-block{grid-column:span 1;}
+.entry-txt{font-size:9px;font-family:'DM Mono',monospace;color:var(--amber);line-height:1.4;}
+.entry-txt.good{color:var(--green);}
+.entry-txt.bad{color:var(--red);}
+
+.col-hdr{font-size:8px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);}
+.col-hdrs{display:grid;grid-template-columns:200px 1fr;border:1px solid var(--border);border-bottom:none;border-radius:0;}
+.col-hdrs-right{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 14px;border-left:1px solid var(--border);}
+
+footer{text-align:center;padding:20px 0 8px;font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:12px;}
+@media(max-width:700px){.stock{grid-template-columns:1fr;}.stock-right{grid-template-columns:repeat(4,1fr);}.col-hdrs{display:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <h1>🦅 BirdWatch <span style="font-size:14px;color:var(--muted);font-family:'DM Mono',monospace;">v2</span></h1>
+  <div class="header-meta">
+    <span class="tag">April 28, 2026</span>
+    <span class="tag">5 Fundamentals + RSI + ATH</span>
+    <span class="tag">Tom Nash Panic Proof Framework</span>
+    <span class="tag">EUR/USD 1.15</span>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>✅ Pass</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>🟡 Partial</div>
+  <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>❌ Fail</div>
+  <div style="margin-left:8px;color:var(--muted)">5 Rules: Revenue · Margins · Cash Flow · Balance Sheet · Competitive Position</div>
+</div>
+
+<!-- COLUMN HEADERS -->
+<div class="col-hdrs">
+  <div class="col-hdr" style="border-right:1px solid var(--border);">Stock · Price</div>
+  <div class="col-hdrs-right">
+    <div class="col-hdr">Revenue</div>
+    <div class="col-hdr">Margins</div>
+    <div class="col-hdr">Cash Flow</div>
+    <div class="col-hdr">Bal. Sheet</div>
+    <div class="col-hdr">Moat</div>
+    <div class="col-hdr">RSI</div>
+    <div class="col-hdr">Entry</div>
+  </div>
+</div>
+
+<!-- ═══ ZONE 1 BUY ═══ -->
+<div class="zone-buy">
+<div class="zone-hdr zone-buy-hdr">
+  <div class="zone-label">🟢 Zone 1 — Buy Now</div>
+  <div class="zone-desc">Fundamentals intact · RSI not overbought · Below ATH</div>
+</div>
+<div class="zone-body">
+
+  <!-- ALAB -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-semi">ALAB</span></div>
+      <div class="sname">Astera Labs</div>
+      <div class="sdesc">PCIe · CXL · Scorpio switching</div>
+      <div class="price-row"><div class="sprice">$207</div><div class="seur">~€180</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $263</span>
+        <span class="ath-chip green">−21% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+115% YoY<br>$852M</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">75.7% gross<br>Expanding</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF $282M<br>Positive</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Zero debt<br>$1.19B cash</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Hyperscaler<br>lock-in</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">80</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">RSI too high<br>Wait $155–175<br>Post May 5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ETN -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-energy">ETN</span></div>
+      <div class="sname">Eaton Corp</div>
+      <div class="sdesc">Power mgmt · DC switchgear · UPS</div>
+      <div class="price-row"><div class="sprice">$410</div><div class="seur">~€357</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $432</span>
+        <span class="ath-chip amber">−5% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+7% YoY<br>$24.9B</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">~39% gross<br>Expanding</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF $3.2B<br>Strong</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">Moderate debt<br>Well managed</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">11yr backlog<br>DC standard</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">55</div>
+        <div class="rsi-label">Neutral</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Near ATH<br>Analyst target<br>below price</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRWD -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-cyber">CRWD</span></div>
+      <div class="sname">CrowdStrike</div>
+      <div class="sdesc">Falcon · Endpoint · Identity</div>
+      <div class="price-row"><div class="sprice">$455</div><div class="seur">~€396</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $567</span>
+        <span class="ath-chip green">−20% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+22% YoY<br>ARR $5.25B</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">78% gross<br>Expanding</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF $284M/Q<br>Record high</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">$4.8B cash<br>Low debt</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Platform lock<br>48 Buy analysts</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">56</div>
+        <div class="rsi-label">Neutral</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt">OK now<br>Ideal &lt;$400<br>Jun 9 earns ✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLW -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-photon">GLW</span></div>
+      <div class="sname">Corning</div>
+      <div class="sdesc">Optical fiber · DC infrastructure</div>
+      <div class="price-row"><div class="sprice">$48</div><div class="seur">~€42</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $58</span>
+        <span class="ath-chip green">−17% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">+5% YoY<br>$14.9B steady</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">~35% gross<br>Stable</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF positive<br>Dividend paid</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">Moderate debt<br>Investment grade</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Fiber monopoly<br>Decades of IP</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">48</div>
+        <div class="rsi-label">Neutral</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt good">Buy now<br>+3% dividend<br>Uncrowded</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end zone-body -->
+</div><!-- end zone-buy -->
+
+<!-- ═══ ZONE 2 WATCH ═══ -->
+<div class="zone-watch">
+<div class="zone-hdr zone-watch-hdr">
+  <div class="zone-label">🟡 Zone 2 — Watch / Wait for Entry</div>
+  <div class="zone-desc">Good fundamentals · Price or RSI not ideal · Set alerts</div>
+</div>
+<div class="zone-body">
+
+  <!-- AVGO -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-network">AVGO</span></div>
+      <div class="sname">Broadcom</div>
+      <div class="sdesc">Tomahawk · Google TPU · Meta MTIA</div>
+      <div class="price-row"><div class="sprice">$417</div><div class="seur">~€363</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $429</span>
+        <span class="ath-chip amber">−3% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+44% YoY<br>$51.6B</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">64% gross<br>Expanding</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF $19B+<br>Best in class</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">$69B debt<br>VMware acq.</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Custom ASIC<br>locked-in</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">84</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">RSI too high<br>Wait $380–390<br>RSI cools</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CEG -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-energy">CEG</span></div>
+      <div class="sname">Constellation Energy</div>
+      <div class="sdesc">Nuclear power · Microsoft TMI deal</div>
+      <div class="price-row"><div class="sprice">$315</div><div class="seur">~€274</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $412</span>
+        <span class="ath-chip green">−24% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+8% YoY<br>$25.5B</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">~9% net<br>Utility-like</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF $1.4B<br>+317% YoY</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">$9.5B debt<br>Nuclear assets</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Only 24/7<br>clean baseload</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">51</div>
+        <div class="rsi-label">Neutral</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt good">Good entry<br>RSI clean<br>May 11 earns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VRT -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-energy">VRT</span></div>
+      <div class="sname">Vertiv</div>
+      <div class="sdesc">DC cooling · Power distribution</div>
+      <div class="price-row"><div class="sprice">$322</div><div class="seur">~€280</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $330</span>
+        <span class="ath-chip red">−2% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+30% YoY<br>$2.65B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">~28% gross<br>Improving</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF positive<br>Guidance raised</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">Moderate debt<br>Manageable</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">DC standard<br>Hard to replace</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">75</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Near ATH<br>RSI high<br>Wait $250–270</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MU -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-semi">MU</span></div>
+      <div class="sname">Micron Technology</div>
+      <div class="sdesc">HBM3E · HBM4 · 2026 sold out</div>
+      <div class="price-row"><div class="sprice">$455</div><div class="seur">~€396</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $471</span>
+        <span class="ath-chip amber">−3% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+84% YoY<br>$8.7B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">~39% gross<br>Recovering</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">FCF positive<br>Capex heavy</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">$8B debt<br>Semi-cycle risk</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">HBM duopoly<br>2026 sold out</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">72</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Too hot now<br>Wait $380–400<br>Jun 24 earns</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MPWR -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-semi">MPWR</span></div>
+      <div class="sname">Monolithic Power</div>
+      <div class="sdesc">PMIC · GPU power chips · Rubin</div>
+      <div class="price-row"><div class="sprice">$1,402</div><div class="seur">~€1,219</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH $1,479</span>
+        <span class="ath-chip amber">−5% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+26% YoY<br>$2.2B</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">55% gross<br>Expanding</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF positive<br>$400M+</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Low debt<br>Net cash pos.</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">70% Rubin<br>GPU power share</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">73</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Above target<br>Wait $1,030<br>Apr 29 earns</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ ZONE 3 SKIP ═══ -->
+<div class="zone-skip">
+<div class="zone-hdr zone-skip-hdr">
+  <div class="zone-label">🔴 Zone 3 — Too High / Zoom In if Goes Down</div>
+  <div class="zone-desc">Great companies · Wrong entry point · Watch for RSI reset</div>
+</div>
+<div class="zone-body">
+
+  <!-- MRVL -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-network">MRVL</span></div>
+      <div class="sname">Marvell Technology</div>
+      <div class="sdesc">Custom ASICs · PCIe Gen6 · CXL</div>
+      <div class="price-row"><div class="sprice">$152</div><div class="seur">~€132</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $154</span>
+        <span class="ath-chip red">At ATH</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+27% YoY<br>$1.8B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">50% gross<br>Improving</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF positive<br>Growing</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">$4.2B debt<br>Manageable</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">NVIDIA $2B<br>direct invest.</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">82</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">At ATH<br>Above consensus<br>Wait $95–100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASML -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-semi">ASML</span></div>
+      <div class="sname">ASML Holding</div>
+      <div class="sdesc">EUV lithography · Only maker · NL</div>
+      <div class="price-row"><div class="sprice">€1,255</div><div class="seur">EUR native</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">ATH €1,313</span>
+        <span class="ath-chip amber">−4% off peak</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+13% YoY<br>€8.8B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">53% gross<br>Stable</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF strong<br>€45B backlog</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Net cash pos.<br>No debt risk</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Only EUV<br>maker on earth</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">55</div>
+        <div class="rsi-label">Neutral</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Only 4% off<br>ATH. Wait<br>€1,200 entry</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GEV -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-energy">GEV</span></div>
+      <div class="sname">GE Vernova</div>
+      <div class="sdesc">Gas turbines · Grid · Wind</div>
+      <div class="price-row"><div class="sprice">$997</div><div class="seur">~€867</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $1,010</span>
+        <span class="ath-chip red">At ATH zone</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+16% YoY<br>$10.6B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">~10% gross<br>Improving</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">FCF turning<br>positive</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Low debt<br>$150B backlog</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">Grid arms<br>dealer · scarce</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">74</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Above target<br>RSI high<br>Wait $800–850</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COHR -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-photon">COHR</span></div>
+      <div class="sname">Coherent Corp</div>
+      <div class="sdesc">CPO · SiPho · NVIDIA $2B invest.</div>
+      <div class="price-row"><div class="sprice">$344</div><div class="seur">~€299</div></div>
+      <div class="ath-row">
+        <span class="ath-chip red">ATH $348</span>
+        <span class="ath-chip red">At ATH</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">+27% YoY<br>$1.4B/Q</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">~42% gross<br>Recovering</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">FCF thin<br>Turning pos.</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon fail">❌</span>
+        <div class="check-val fail">$5.8B debt<br>II-VI merger</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon pass">✅</span>
+        <div class="check-val pass">NVIDIA CPO<br>direct partner</div>
+      </div>
+      <div class="rsi-block over">
+        <div class="rsi-num">78</div>
+        <div class="rsi-label">Overbought</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Up 600% yr<br>At ATH<br>Wait $70–72</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUANTUM row simplified -->
+  <div class="stock">
+    <div class="stock-left">
+      <div class="ticker-row"><span class="ticker t-quantum">IONQ</span></div>
+      <div class="sname">IonQ / QBTS / RGTI</div>
+      <div class="sdesc">Quantum computing · Monitor only</div>
+      <div class="price-row"><div class="sprice">$47/$19/$11</div><div class="seur">5–10yr horizon</div></div>
+      <div class="ath-row">
+        <span class="ath-chip amber">IONQ ATH $84</span>
+        <span class="ath-chip amber">QBTS ATH $46</span>
+      </div>
+    </div>
+    <div class="stock-right">
+      <div class="check">
+        <div class="check-label">Revenue</div>
+        <span class="check-icon fail">❌</span>
+        <div class="check-val fail">Pre-revenue<br>or tiny</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Margins</div>
+        <span class="check-icon fail">❌</span>
+        <div class="check-val fail">Negative<br>R&D phase</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Cash Flow</div>
+        <span class="check-icon fail">❌</span>
+        <div class="check-val fail">Cash burn<br>Pre-profit</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Bal. Sheet</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">Cash funded<br>Limited runway</div>
+      </div>
+      <div class="check">
+        <div class="check-label">Moat</div>
+        <span class="check-icon half">🟡</span>
+        <div class="check-val half">Early tech<br>Unproven comm.</div>
+      </div>
+      <div class="rsi-block neutral">
+        <div class="rsi-num">~50</div>
+        <div class="rsi-label">Varies</div>
+      </div>
+      <div class="entry-block">
+        <div class="entry-txt bad">Monitor only<br>Max 1–2%<br>portfolio</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>🦅 BirdWatch v2 · Tom Nash Panic Proof 5 Rules + RSI + ATH · April 28, 2026 · Not financial advice</footer>
+</div>
+</body>
+</html>
