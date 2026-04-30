@@ -188,6 +188,156 @@ footer span{color:var(--accent);}
 </style>
 </head>
 <body>
+<script>
+(function(){
+  var correct = "1905";
+  var stored = sessionStorage.getItem("wd_auth");
+  if(stored === correct) return;
+
+  var attempts = parseInt(sessionStorage.getItem("wd_attempts") || "0");
+
+  function showDiablo(count) {
+    document.body.innerHTML = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Mono:wght@400;500&display=swap');
+      body { margin:0; background:#000; overflow:hidden; }
+      .diablo-wrap {
+        min-height:100vh; display:flex; flex-direction:column;
+        align-items:center; justify-content:center;
+        background: radial-gradient(ellipse at 50% 60%, #3a0000 0%, #1a0000 40%, #000 100%);
+        position:relative; overflow:hidden;
+      }
+      .fire-bg {
+        position:absolute; bottom:0; left:0; right:0; height:40%;
+        background: linear-gradient(to top, #ff2200aa, #ff660044, transparent);
+        animation: flicker 1.5s infinite alternate;
+        filter: blur(20px);
+      }
+      @keyframes flicker { 0%{opacity:0.6;transform:scaleY(1);} 100%{opacity:1;transform:scaleY(1.1);} }
+      .diablo-img {
+        width:280px; max-width:80vw;
+        filter: drop-shadow(0 0 40px #ff3300) drop-shadow(0 0 80px #aa0000);
+        animation: breathe 3s infinite alternate;
+        position:relative; z-index:2;
+      }
+      @keyframes breathe { 0%{transform:scale(1);filter:drop-shadow(0 0 40px #ff3300) drop-shadow(0 0 80px #aa0000);} 100%{transform:scale(1.04);filter:drop-shadow(0 0 60px #ff5500) drop-shadow(0 0 120px #cc0000);} }
+      .title {
+        font-family:'Cinzel',serif; font-size:clamp(28px,6vw,52px); font-weight:900;
+        color:#cc2200; text-transform:uppercase; letter-spacing:0.12em;
+        text-shadow: 0 0 20px #ff3300, 0 0 60px #aa0000;
+        margin:20px 0 8px; position:relative; z-index:2;
+      }
+      .subtitle {
+        font-family:'Cinzel',serif; font-size:clamp(12px,2.5vw,18px);
+        color:#ff6633; letter-spacing:0.2em; text-transform:uppercase;
+        text-shadow: 0 0 10px #ff3300;
+        margin-bottom:24px; position:relative; z-index:2;
+      }
+      .attempts-box {
+        background: rgba(180,0,0,0.15);
+        border: 1px solid #cc2200;
+        border-radius: 8px;
+        padding: 14px 28px;
+        font-family:'DM Mono',monospace;
+        color:#ff4422;
+        font-size:13px;
+        text-align:center;
+        position:relative; z-index:2;
+        box-shadow: 0 0 20px rgba(200,0,0,0.3);
+      }
+      .attempts-count {
+        font-size: clamp(32px,8vw,64px);
+        font-family:'Cinzel',serif;
+        font-weight:900;
+        color:#ff2200;
+        display:block;
+        text-shadow: 0 0 20px #ff3300;
+        line-height:1.1;
+        margin: 6px 0;
+      }
+      .retry-btn {
+        margin-top:20px;
+        padding:12px 32px;
+        background:transparent;
+        border:1px solid #cc2200;
+        color:#ff4422;
+        font-family:'DM Mono',monospace;
+        font-size:12px;
+        letter-spacing:0.1em;
+        text-transform:uppercase;
+        cursor:pointer;
+        border-radius:4px;
+        position:relative; z-index:2;
+        transition: all 0.2s;
+      }
+      .retry-btn:hover { background:rgba(200,0,0,0.2); color:#ff7755; border-color:#ff4422; }
+      .embers {
+        position:absolute; top:0; left:0; right:0; bottom:0;
+        pointer-events:none; z-index:1; overflow:hidden;
+      }
+      .ember {
+        position:absolute; width:3px; height:3px; border-radius:50%;
+        background:#ff4400; box-shadow:0 0 4px #ff6600;
+        animation: rise linear infinite;
+      }
+      @keyframes rise {
+        0%{transform:translateY(0) translateX(0);opacity:1;}
+        100%{transform:translateY(-100vh) translateX(var(--drift));opacity:0;}
+      }
+    </style>
+    <div class="diablo-wrap">
+      <div class="fire-bg"></div>
+      <div class="embers" id="embers"></div>
+      <img class="diablo-img" src="https://blz-contentstack-images.akamaized.net/v3/assets/blt77f4425de611b362/bltf2cf27f8f4e5c032/6204e7fba90c1c14d15a8b48/diablo-iv-diablo-class-featured.webp"
+        onerror="this.src='https://upload.wikimedia.org/wikipedia/en/3/3d/Diablo_IV_cover_art.jpg'"
+        alt="Diablo" />
+      <div class="title">Access Denied</div>
+      <div class="subtitle">Your soul is not worthy</div>
+      <div class="attempts-box">
+        Failed attempts from the darkness<br>
+        <span class="attempts-count">${count}</span>
+        ${count >= 5 ? '<div style="color:#ff6633;font-size:11px;margin-top:4px;">⚠️ Sanctuary grows suspicious...</div>' : ''}
+        ${count >= 10 ? '<div style="color:#ff2200;font-size:11px;margin-top:4px;">☠️ The Prime Evil watches you.</div>' : ''}
+      </div>
+      <button class="retry-btn" onclick="location.reload()">⚔️ Try Again</button>
+    </div>`;
+
+    // Generate ember particles
+    var embers = document.getElementById('embers');
+    if(embers) {
+      for(var i=0;i<30;i++){
+        var e = document.createElement('div');
+        e.className = 'ember';
+        e.style.left = Math.random()*100 + '%';
+        e.style.bottom = '-10px';
+        e.style.setProperty('--drift', (Math.random()*100-50)+'px');
+        e.style.animationDuration = (2+Math.random()*4)+'s';
+        e.style.animationDelay = (Math.random()*4)+'s';
+        e.style.opacity = Math.random();
+        embers.appendChild(e);
+      }
+    }
+  }
+
+  function askPassword() {
+    var pw = prompt("🐕 WatchDog — Enter password:");
+    if(pw === null) {
+      showDiablo(attempts);
+      return;
+    }
+    if(pw !== correct) {
+      attempts++;
+      sessionStorage.setItem("wd_attempts", attempts);
+      showDiablo(attempts);
+    } else {
+      sessionStorage.setItem("wd_auth", correct);
+      sessionStorage.setItem("wd_attempts", "0");
+    }
+  }
+
+  askPassword();
+})();
+</script>
 <nav style="position:sticky;top:0;z-index:999;background:#0f0f18;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 20px;display:flex;align-items:center;gap:0;font-family:DM Mono,monospace;"><a href="index.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;text-decoration:none;font-size:12px;font-weight:700;color:#7c6af7;border-bottom:2px solid transparent;" onmouseover="this.style.color='#9d8af5'" onmouseout="this.style.color='#7c6af7'">🐕 WatchDog</a><a href="birdwatch_v2.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;text-decoration:none;font-size:12px;font-weight:700;color:#2ecc8a;border-bottom:2px solid transparent;" onmouseover="this.style.color='#5ee8a8'" onmouseout="this.style.color='#2ecc8a'">🦅 BirdWatch</a><a href="tacklboy_light.html" style="display:flex;align-items:center;gap:8px;padding:12px 16px;text-decoration:none;font-size:12px;font-weight:700;color:#f5a623;border-bottom:2px solid transparent;" onmouseover="this.style.color='#ffc05a'" onmouseout="this.style.color='#f5a623'">🎣 TackleBoy</a><span style="margin-left:auto;font-size:10px;color:#444;padding:0 8px;">toroscemre · April 2026</span></nav>
 
 <!-- RATES BAR -->
