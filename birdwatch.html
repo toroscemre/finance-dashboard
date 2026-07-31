@@ -102,6 +102,7 @@ body::before {
 }
 .badge.qqq { background:var(--qqq-bg); border:1px solid var(--qqq-b); color:var(--blue); }
 .badge.gap { background:var(--gap-bg); border:1px solid var(--gap-b); color:var(--amber); }
+.badge.jedi { background:rgba(46,204,138,0.10); border:1px solid rgba(46,204,138,0.35); color:var(--green); }
 
 /* FOOTER NOTE */
 .note {
@@ -145,7 +146,8 @@ footer {
 
   <div class="legend">
     <div class="item"><span class="dot qqq"></span> EQQB/QQQ içinde — pasif olarak zaten sahipsin</div>
-    <div class="item"><span class="dot gap"></span> Endeks dışı — gerçek boşluk, bireysel karar gerekir</div>
+    <div class="item"><span class="dot" style="background:var(--green)"></span> JEDI (VanEck Space) içinde — uzay ETF'in üzerinden zaten sahipsin</div>
+    <div class="item"><span class="dot gap"></span> Endeks/fon dışı — gerçek boşluk, bireysel karar gerekir</div>
   </div>
 
   <!-- THEME 1 -->
@@ -255,15 +257,15 @@ footer {
       <span class="sub">4 şirket</span>
     </div>
     <div class="grid">
-      <div class="card qqq-yes">
-        <div class="ticker-block"><div class="ticker">SPCX</div><div class="name">SpaceX</div></div>
-        <div class="mid"><div class="thesis">7 Temmuz 2026'da Nasdaq-100'e katıldı — az önce konuştuğumuz hisse, dikkatli izle</div></div>
-        <div class="badge qqq">QQQ ✓</div>
-      </div>
-      <div class="card qqq-no">
+      <div class="card" style="border-left:3px solid var(--green)">
         <div class="ticker-block"><div class="ticker">RKLB</div><div class="name">Rocket Lab</div></div>
         <div class="mid"><div class="thesis">Küçük roket/uydu fırlatma — SpaceX'in daha küçük rakibi</div></div>
-        <div class="badge gap">Boşluk</div>
+        <div class="badge jedi">JEDI ✓ %9.7</div>
+      </div>
+      <div class="card qqq-yes">
+        <div class="ticker-block"><div class="ticker">SPCX</div><div class="name">SpaceX</div></div>
+        <div class="mid"><div class="thesis">7 Temmuz 2026'da Nasdaq-100'e katıldı. JEDI holdings'inde henüz yok — IPO sonrası fon rebalance'ı bekleniyor</div></div>
+        <div class="badge qqq">QQQ ✓</div>
       </div>
       <div class="card qqq-no">
         <div class="ticker-block"><div class="ticker">IONQ</div><div class="name">IonQ</div></div>
@@ -305,7 +307,7 @@ footer {
   </div>
 
   <div class="note">
-    <b>Neden bu ayrım önemli:</b> EQQB DCA'nı yükselttiğinde (mavi rozetli 8 şirket: ANET, MU, MPWR, MRVL, LITE, SPCX + zaten TackleBoy'daki AAPL, AMD, ASML, AVGO, CRWD, CEG, TSLA), otomatik olarak maruziyet alıyorsun — <b>hiçbir yeni ticker eklemeden.</b> Gerçek karar gerektiren sadece amber rozetli <b>12 boşluk hissesi</b> — bunlar endeks dışı olduğu için sadece bireysel alımla portföye girebilirler. Hisse sayısını artırmadan avantaj yakalamanın yolu: mavi rozetlileri EQQB üzerinden pasif tut, amber rozetlilerden sadece gerçekten inandığın 1-2 taneyi seçip küçük pozisyon aç.
+    <b>Neden bu ayrım önemli:</b> EQQB DCA'nı yükselttiğinde (mavi rozetli 8 şirket: ANET, MU, MPWR, MRVL, LITE, SPCX + zaten TackleBoy'daki AAPL, AMD, ASML, AVGO, CRWD, CEG, TSLA), otomatik olarak maruziyet alıyorsun. **RKLB'yi de zaten JEDI üzerinden (%9.7 ağırlıkla en büyük pozisyon) dolaylı sahipsin** — hiçbir yeni ticker eklemeden. Gerçek karar gerektiren sadece amber rozetli <b>11 boşluk hissesi</b> — bunlar hiçbir fonda/endekste yok, sadece bireysel alımla portföye girebilirler. Hisse sayısını artırmadan avantaj yakalamanın yolu: mavi/yeşil rozetlileri pasif tut, amber rozetlilerden sadece gerçekten inandığın 1-2 taneyi seçip küçük pozisyon aç.
   </div>
 
   <footer>🦅 BirdWatch · WatchDog Finance · Temmuz 2026 · Kişisel referans amaçlı, yatırım tavsiyesi değildir</footer>
