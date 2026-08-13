@@ -78,6 +78,10 @@ header{padding:28px 20px 20px;border-bottom:1px solid var(--border);position:rel
 .liq-y{background:rgba(46,204,138,0.15);color:var(--green);}
 .liq-n{background:rgba(245,166,35,0.15);color:var(--amber);}
 .liq-r{background:rgba(107,107,128,0.2);color:var(--muted);}
+.risk{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:500;margin-left:6px;}
+.risk-1,.risk-2{background:rgba(46,204,138,0.15);color:var(--green);}
+.risk-3,.risk-4{background:rgba(245,166,35,0.15);color:var(--amber);}
+.risk-5,.risk-6,.risk-7{background:rgba(255,92,92,0.15);color:var(--red);}
 @media(max-width:700px){.asset-row{grid-template-columns:1.5fr 1fr 1fr;}.hm{display:none;}}
 
 /* CASHFLOW */
@@ -395,6 +399,88 @@ footer span{color:var(--accent);}
     </div>
   </div>
 
+  <!-- CURRENCY EXPOSURE PIE CHART -->
+  <div class="card" style="padding:18px;margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Currency Exposure</div>
+    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;">Total wealth by underlying currency (kur bazında)</div>
+    <div style="position:relative;max-width:280px;margin:0 auto;height:280px;">
+      <canvas id="currency-pie"></canvas>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;">Total</div>
+        <div id="pie-currency-center" style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);">—</div>
+      </div>
+    </div>
+    <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;">EUR: QQQ + Unilever + ABN AMRO + Emergency Cash &middot; USD: Revolut Portfolio (hisseler+JEDI+nakit) + Eurobonds &middot; TRY: İşbank İLH Fon</div>
+  </div>
+
+  <!-- PORTFOLIO TREND 2026 -->
+  <div class="card" style="padding:18px;margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Portfolio Trend 2026</div>
+    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;">Ay sonunda o ayın verisi sabitlenir, yeni ay başlayınca yeni nokta eklenir</div>
+    <div style="position:relative;height:220px;">
+      <canvas id="trend-chart"></canvas>
+    </div>
+    <div id="trend-summary" style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;"></div>
+  </div>
+
+  <!-- WHAT-IF SIMULATOR -->
+  <div class="card" style="padding:18px;margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Ne Olurdu? Simülatörü</div>
+    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;">Her hesaba eklemek/çıkarmak istediğin &euro; miktarını gir &mdash; grafikler canlı güncellenir</div>
+
+    <div id="sim-inputs" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center;margin-bottom:12px;">
+      <label for="sim-revolut" style="font-size:11px;color:var(--text);">Revolut Portfolio</label>
+      <input type="number" id="sim-revolut" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-qqq" style="font-size:11px;color:var(--text);">QQQ ETF</label>
+      <input type="number" id="sim-qqq" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-abn" style="font-size:11px;color:var(--text);">ABN AMRO ETF</label>
+      <input type="number" id="sim-abn" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-unil" style="font-size:11px;color:var(--text);">Unilever</label>
+      <input type="number" id="sim-unil" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-bonds" style="font-size:11px;color:var(--text);">Eurobonds</label>
+      <input type="number" id="sim-bonds" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-ilh" style="font-size:11px;color:var(--text);">İşbank İLH Fon</label>
+      <input type="number" id="sim-ilh" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-cash" style="font-size:11px;color:var(--text);">Emergency Cash</label>
+      <input type="number" id="sim-cash" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <button id="sim-btn-sellbonds" style="padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:rgba(124,106,247,0.1);color:var(--accent);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Eurobond'ları sat &rarr; yarı İşbank, yarı Revolut'a böl</button>
+      <button id="sim-btn-reset" style="padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Sıfırla</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Wealth Breakdown</div>
+        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
+          <canvas id="sim-wealth-pie"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
+            <div id="sim-pie-wealth-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Currency Exposure</div>
+        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
+          <canvas id="sim-currency-pie"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
+            <div id="sim-pie-currency-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sim-delta-summary" style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:12px;"></div>
+  </div>
+
   <!-- ASSET TABLE -->
   <div class="card" style="padding:0;overflow:hidden;">
     <div class="asset-row hdr">
@@ -402,43 +488,43 @@ footer span{color:var(--accent);}
       <div>Status</div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">Revolut Portfolio</div><div class="asset-sub">All stocks except QQQ</div></div>
+      <div><div class="asset-name">Revolut Portfolio</div><div class="asset-sub">All stocks except QQQ <span class="risk risk-5">Risk 5/7</span></div></div>
       <div class="asset-val" id="av-revolut">—</div>
       <div class="asset-sub hm">USD / EUR</div>
       <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">QQQ ETF</div><div class="asset-sub">EQQB · €200/month DCA</div></div>
+      <div><div class="asset-name">QQQ ETF</div><div class="asset-sub">EQQB · €200/month DCA <span class="risk risk-3">Risk 3/7</span></div></div>
       <div class="asset-val" id="av-qqq">—</div>
       <div class="asset-sub hm">EUR</div>
       <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">ABN AMRO ETF</div><div class="asset-sub">€150/month DCA · Matig Offensief</div></div>
+      <div><div class="asset-name">ABN AMRO ETF</div><div class="asset-sub">€150/month DCA · Matig Offensief <span class="risk risk-2">Risk 2/7</span></div></div>
       <div class="asset-val" id="av-abn">—</div>
       <div class="asset-sub hm">EUR</div>
       <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">Unilever Shares</div><div class="asset-sub">Corporate bonus scheme · 3yr lock · ULVR</div></div>
+      <div><div class="asset-name">Unilever Shares</div><div class="asset-sub">Corporate bonus scheme · 3yr lock · ULVR <span class="risk risk-3">Risk 3/7</span></div></div>
       <div class="asset-val" id="av-unilever">—</div>
       <div class="asset-sub hm">EUR</div>
       <div><span class="liq liq-n">Locked</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">Eurobonds</div><div class="asset-sub">USD fixed income · 6&ndash;7% / year</div></div>
+      <div><div class="asset-name">Eurobonds</div><div class="asset-sub">USD fixed income · 6&ndash;7% / year <span class="risk risk-4">Risk 4/7 · FX</span></div></div>
       <div class="asset-val" id="av-bonds">—</div>
       <div class="asset-sub hm">USD</div>
       <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">İşbank İLH Fon</div><div class="asset-sub">TRY bond fund · covers Turkish expenses</div></div>
+      <div><div class="asset-name">İşbank İLH Fon</div><div class="asset-sub">TRY fund · %0.1069/gün bileşik <span class="risk risk-7">Risk 7/7 · FX</span></div></div>
       <div class="asset-val" id="av-ilh">—</div>
       <div class="asset-sub hm">TRY</div>
       <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
-      <div><div class="asset-name">Emergency Cash</div><div class="asset-sub">6+ months expenses · never touch</div></div>
+      <div><div class="asset-name">Emergency Cash</div><div class="asset-sub">6+ months expenses · never touch <span class="risk risk-1">Risk 1/7</span></div></div>
       <div class="asset-val" id="av-cash">—</div>
       <div class="asset-sub hm">EUR</div>
       <div><span class="liq liq-r">Reserved</span></div>
@@ -604,6 +690,37 @@ footer span{color:var(--accent);}
     </table>
   </div>
   <div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;padding:0 4px;">Prices &amp; values from Revolut snapshot, 30 Jul 2026 &middot; live-refresh overrides when available. * MSFT/META/EQQB since-buy highs are best-available and may predate your purchase. ALAB/ORCL/PLTR/ARM/BE since-buy highs left blank (purchase date unknown). PLTR sell target: $165-175.</div>
+  <details style="margin-top:8px;padding:0 4px;">
+    <summary style="cursor:pointer;font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;">QQQ (EQQB) &mdash; top 20 underlying holdings &amp; approx. &euro; exposure</summary>
+    <div style="margin-top:8px;overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;">
+        <thead><tr style="text-align:left;"><th style="padding:4px 8px;">#</th><th style="padding:4px 8px;">Ticker</th><th style="padding:4px 8px;text-align:right;">Weight</th><th style="padding:4px 8px;text-align:right;">&asymp; &euro;</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:3px 8px;">1</td><td style="padding:3px 8px;">NVDA</td><td style="padding:3px 8px;text-align:right;">9.63%</td><td style="padding:3px 8px;text-align:right;">&euro;463</td></tr>
+          <tr><td style="padding:3px 8px;">2</td><td style="padding:3px 8px;">MSFT</td><td style="padding:3px 8px;text-align:right;">8.36%</td><td style="padding:3px 8px;text-align:right;">&euro;402</td></tr>
+          <tr><td style="padding:3px 8px;">3</td><td style="padding:3px 8px;">AAPL</td><td style="padding:3px 8px;text-align:right;">7.84%</td><td style="padding:3px 8px;text-align:right;">&euro;377</td></tr>
+          <tr><td style="padding:3px 8px;">4</td><td style="padding:3px 8px;">GOOG/GOOGL</td><td style="padding:3px 8px;text-align:right;">5.93%</td><td style="padding:3px 8px;text-align:right;">&euro;285</td></tr>
+          <tr><td style="padding:3px 8px;">5</td><td style="padding:3px 8px;">AVGO</td><td style="padding:3px 8px;text-align:right;">5.76%</td><td style="padding:3px 8px;text-align:right;">&euro;277</td></tr>
+          <tr><td style="padding:3px 8px;">6</td><td style="padding:3px 8px;">AMZN</td><td style="padding:3px 8px;text-align:right;">4.95%</td><td style="padding:3px 8px;text-align:right;">&euro;238</td></tr>
+          <tr><td style="padding:3px 8px;">7</td><td style="padding:3px 8px;">META</td><td style="padding:3px 8px;text-align:right;">3.67%</td><td style="padding:3px 8px;text-align:right;">&euro;177</td></tr>
+          <tr><td style="padding:3px 8px;">8</td><td style="padding:3px 8px;">TSLA</td><td style="padding:3px 8px;text-align:right;">3.36%</td><td style="padding:3px 8px;text-align:right;">&euro;162</td></tr>
+          <tr><td style="padding:3px 8px;">9</td><td style="padding:3px 8px;">NFLX</td><td style="padding:3px 8px;text-align:right;">2.99%</td><td style="padding:3px 8px;text-align:right;">&euro;144</td></tr>
+          <tr><td style="padding:3px 8px;">10</td><td style="padding:3px 8px;">PLTR</td><td style="padding:3px 8px;text-align:right;">2.26%</td><td style="padding:3px 8px;text-align:right;">&euro;109</td></tr>
+          <tr><td style="padding:3px 8px;">11</td><td style="padding:3px 8px;">AMD</td><td style="padding:3px 8px;text-align:right;">2.22%</td><td style="padding:3px 8px;text-align:right;">&euro;107</td></tr>
+          <tr><td style="padding:3px 8px;">12</td><td style="padding:3px 8px;">LRCX</td><td style="padding:3px 8px;text-align:right;">1.48%</td><td style="padding:3px 8px;text-align:right;">&euro;71</td></tr>
+          <tr><td style="padding:3px 8px;">13</td><td style="padding:3px 8px;">MU</td><td style="padding:3px 8px;text-align:right;">1.25%</td><td style="padding:3px 8px;text-align:right;">&euro;60</td></tr>
+          <tr><td style="padding:3px 8px;">14</td><td style="padding:3px 8px;">TXN</td><td style="padding:3px 8px;text-align:right;">1.12%</td><td style="padding:3px 8px;text-align:right;">&euro;54</td></tr>
+          <tr><td style="padding:3px 8px;">15</td><td style="padding:3px 8px;">APP</td><td style="padding:3px 8px;text-align:right;">0.99%</td><td style="padding:3px 8px;text-align:right;">&euro;48</td></tr>
+          <tr><td style="padding:3px 8px;">16</td><td style="padding:3px 8px;">INTC</td><td style="padding:3px 8px;text-align:right;">0.95%</td><td style="padding:3px 8px;text-align:right;">&euro;46</td></tr>
+          <tr><td style="padding:3px 8px;">17</td><td style="padding:3px 8px;">KO</td><td style="padding:3px 8px;text-align:right;">0.91%</td><td style="padding:3px 8px;text-align:right;">&euro;44</td></tr>
+          <tr><td style="padding:3px 8px;">18</td><td style="padding:3px 8px;">WMT</td><td style="padding:3px 8px;text-align:right;">0.84%</td><td style="padding:3px 8px;text-align:right;">&euro;40</td></tr>
+          <tr><td style="padding:3px 8px;">19</td><td style="padding:3px 8px;">CEG</td><td style="padding:3px 8px;text-align:right;">0.75%</td><td style="padding:3px 8px;text-align:right;">&euro;36</td></tr>
+          <tr><td style="padding:3px 8px;">20</td><td style="padding:3px 8px;">PG</td><td style="padding:3px 8px;text-align:right;">0.67%</td><td style="padding:3px 8px;text-align:right;">&euro;32</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:9px;color:var(--muted);margin-top:6px;">İlk 20 hisse QQQ'nun ~%66'sını oluşturuyor. Ağırlıklar günlük değişir, kaynağa göre ufak farklılık gösterebilir &mdash; yaklaşık değerdir.</div>
+    </div>
+  </details>
 </div>
 
 <!-- MONTHLY CASH FLOW -->
@@ -691,7 +808,7 @@ footer span{color:var(--accent);}
 <script>
 const FKEY = 'd7hpv81r01qirk40j0p0d7hpv81r01qirk40j0pg';
 let cur = 'EUR';
-let R = {eurusd:1.145, eurtry:54.73, usdtry:47.80};
+let R = {eurusd:1.155, eurtry:55.05, usdtry:47.65};
 let prices = {}; // live USD quotes from Finnhub, keyed by ticker
 
 // ── POSITIONS (avg cost as originally entered; USD unless noted) ──
@@ -728,10 +845,128 @@ const JEDI_PRICE_EST = STOCK_DATA.JEDI.priceEUR;
 const ASSETS = {
   unilever: {eur:50300},   // locked, as of July 2026
   bonds:    {usd:21918},
-  ilh:      {try:1723951},
+  ilh:      {try:1723951}, // seed principal, only used if no localStorage state exists yet
   cash:     {eur:20000},
   abn:      {eur:3162},
 };
+
+// ── İLH FON — DAILY COMPOUNDING ──
+// Rate confirmed by user: 0.1069% per day (≈47.7% annualized). Persisted in
+// localStorage so the balance keeps compounding across sessions even if the
+// dashboard isn't opened every day — on each load we catch up all missed days at once.
+const ILH_DAILY_RATE = 0.001069;
+const ILH_STORAGE_KEY = 'watchdog_ilh_state';
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function getIlhBalanceTRY() {
+  let state;
+  try {
+    state = JSON.parse(localStorage.getItem(ILH_STORAGE_KEY));
+  } catch(e) { state = null; }
+
+  const today = todayISO();
+
+  if (!state || !state.balance || !state.lastDate) {
+    state = { balance: ASSETS.ilh.try, lastDate: today };
+    try { localStorage.setItem(ILH_STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+    return state.balance;
+  }
+
+  const daysDiff = Math.floor((new Date(today) - new Date(state.lastDate)) / 86400000);
+  if (daysDiff > 0) {
+    state.balance = state.balance * Math.pow(1 + ILH_DAILY_RATE, daysDiff);
+    state.lastDate = today;
+    try { localStorage.setItem(ILH_STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+  return state.balance;
+}
+
+// ── PORTFOLIO TREND 2026 ──
+// Records one snapshot per calendar month. Within a month, every page load
+// overwrites that month's entry with the latest total — so it always reflects
+// the most recent value seen so far. Once the month changes, the old entry is
+// left untouched (frozen at its last value) and a new entry starts for the new month.
+const TREND_STORAGE_KEY = 'watchdog_monthly_trend';
+let trendChart = null;
+
+function loadTrendHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(TREND_STORAGE_KEY)) || {};
+  } catch(e) { return {}; }
+}
+
+function saveTrendHistory(history) {
+  try { localStorage.setItem(TREND_STORAGE_KEY, JSON.stringify(history)); } catch(e) {}
+}
+
+function recordMonthlySnapshot(totalEUR, revEUR, qqqEUR) {
+  const monthKey = todayISO().slice(0, 7); // YYYY-MM
+  const history = loadTrendHistory();
+  history[monthKey] = { total: totalEUR, revolut: revEUR, qqq: qqqEUR, lastUpdated: todayISO() };
+  saveTrendHistory(history);
+  renderTrendChart(history);
+}
+
+const TR_MONTHS = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+
+function renderTrendChart(history) {
+  const canvas = document.getElementById('trend-chart');
+  if (!canvas || !window.Chart) return;
+
+  const monthKeys = Object.keys(history).filter(k => k.startsWith('2026-')).sort();
+  const labels = monthKeys.map(k => TR_MONTHS[parseInt(k.slice(5,7),10)-1]);
+  const totalData = monthKeys.map(k => history[k].total);
+  const revolutData = monthKeys.map(k => history[k].revolut);
+  const qqqData = monthKeys.map(k => history[k].qqq);
+
+  if (trendChart) {
+    trendChart.data.labels = labels;
+    trendChart.data.datasets[0].data = totalData;
+    trendChart.data.datasets[1].data = revolutData;
+    trendChart.data.datasets[2].data = qqqData;
+    trendChart.update();
+  } else {
+    trendChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: 'Toplam Servet', data: totalData, borderColor:'#7c6af7', backgroundColor:'rgba(124,106,247,0.08)', fill:true, tension:0.3, pointRadius:3 },
+          { label: 'Revolut Portfolio', data: revolutData, borderColor:'#5b9bf0', backgroundColor:'transparent', tension:0.3, pointRadius:3 },
+          { label: 'QQQ ETF', data: qqqData, borderColor:'#f5a623', backgroundColor:'transparent', tension:0.3, pointRadius:3 },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks:{ color:'#8a8aa0', font:{family:"'DM Mono',monospace", size:9.5} }, grid:{ color:'rgba(255,255,255,0.04)' } },
+          y: { ticks:{ color:'#8a8aa0', font:{family:"'DM Mono',monospace", size:9}, callback:(v)=>disp(v) }, grid:{ color:'rgba(255,255,255,0.04)' } }
+        },
+        plugins: {
+          legend: { position:'bottom', labels:{ color:'#e8e8f0', font:{family:"'DM Mono',monospace", size:9.5}, boxWidth:9, padding:10 } },
+          tooltip: { callbacks: { label:(ctx)=> ' '+ctx.dataset.label+': '+disp(ctx.parsed.y) } }
+        }
+      }
+    });
+  }
+
+  const summaryEl = document.getElementById('trend-summary');
+  if (summaryEl) {
+    if (monthKeys.length < 2) {
+      summaryEl.textContent = 'İlk kayıt: ' + (labels[0]||'—') + ' 2026. Aylar geçtikçe trend burada birikecek.';
+    } else {
+      const first = totalData[0], last = totalData[totalData.length-1];
+      const diff = last - first;
+      const pct = first>0 ? (diff/first*100).toFixed(1) : '0.0';
+      const sign = diff>=0 ? '+' : '';
+      summaryEl.textContent = labels[0]+' \u2192 '+labels[labels.length-1]+': '+sign+disp(diff)+' ('+sign+pct+'%)';
+    }
+  }
+}
 
 // Monthly Cash Flow (matches the line items in the Monthly Cash Flow section below)
 const MONTHLY_INCOME_EUR = 13567;
@@ -782,9 +1017,9 @@ async function fetchRates() {
     document.getElementById('live-dot').style.background='var(--green)';
     return true;
   } catch(e) {
-    document.getElementById('r-eurusd').textContent='1.1450';
-    document.getElementById('r-eurtry').textContent='54.73';
-    document.getElementById('r-usdtry').textContent='47.80';
+    document.getElementById('r-eurusd').textContent='1.1550';
+    document.getElementById('r-eurtry').textContent='55.05';
+    document.getElementById('r-usdtry').textContent='47.65';
     document.getElementById('r-eurusd').className='rate-val rate-err';
     document.getElementById('last-upd').textContent='Rates cached · API error';
     document.getElementById('live-dot').style.background='var(--amber)';
@@ -868,6 +1103,7 @@ function renderPositions() {
 }
 
 let wealthChart = null;
+let currencyChart = null;
 let revolutChart = null;
 let revolutExQqqChart = null;
 
@@ -875,17 +1111,18 @@ let revolutExQqqChart = null;
 function updateDisplay() {
   renderPositions();
   // Revolut Portfolio = all stocks EXCEPT QQQ/EQQB, plus JEDI and idle cash
-  let revEUR = JEDI_SHARES * JEDI_PRICE_EST + CASH_EUR;
+  let usdStocksEUR = 0;
   for (const [s,p] of Object.entries(POS)) {
-    if (p.shares>0) revEUR += p.shares * priceEUR(s);
+    if (p.shares>0) usdStocksEUR += p.shares * priceEUR(s);
   }
+  let revEUR = JEDI_SHARES * JEDI_PRICE_EST + CASH_EUR + usdStocksEUR;
 
   // QQQ ETF (EQQB) — tracked separately
   const qqqEUR = EQQB_SHARES * EQQB_PRICE_EST;
 
   const unilEUR = ASSETS.unilever.eur;
   const bondsEUR = ASSETS.bonds.usd / R.eurusd;
-  const ilhEUR = ASSETS.ilh.try / R.eurtry;
+  const ilhEUR = getIlhBalanceTRY() / R.eurtry;
   const cashEUR = ASSETS.cash.eur;
   const abnEUR = ASSETS.abn.eur;
 
@@ -947,6 +1184,69 @@ function updateDisplay() {
   }
   const centerEl = document.getElementById('pie-center-val');
   if (centerEl) centerEl.textContent = disp(totalEUR);
+
+  // ── CURRENCY EXPOSURE PIE CHART ──
+  // EUR: idle cash + JEDI (EUR-listed) + ABN AMRO + Emergency Cash
+  // USD: individual stocks + QQQ/EQQB (unhedged Nasdaq-100) + Eurobonds
+  // GBP: Unilever (ULVR, London-listed)
+  // TRY: İşbank İLH Fon
+  // EUR: QQQ/EQQB (trades in EUR) + Unilever + ABN AMRO + Emergency Cash
+  // USD: whole Revolut Portfolio (stocks + JEDI + idle cash, per your simplification) + Eurobonds
+  // TRY: İşbank İLH Fon
+  const eurExposure = qqqEUR + unilEUR + abnEUR + cashEUR;
+  const usdExposure = revEUR + bondsEUR;
+  const tryExposure = ilhEUR;
+  const currencyTotal = eurExposure + usdExposure + tryExposure;
+
+  const curCanvas = document.getElementById('currency-pie');
+  if (curCanvas && window.Chart) {
+    const curData = [eurExposure, usdExposure, tryExposure];
+    const curLabels = ['EUR', 'USD', 'TRY (İşbank)'];
+    const curColors = ['#2ecc8a', '#5b9bf0', '#ff5c5c'];
+    if (currencyChart) {
+      currencyChart.data.datasets[0].data = curData;
+      currencyChart.update();
+    } else {
+      currencyChart = new Chart(curCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: curLabels,
+          datasets: [{ data: curData, backgroundColor: curColors, borderColor:'#0a0a0f', borderWidth:2 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color:'#e8e8f0', font:{family:"'DM Mono',monospace", size:10.5}, boxWidth:10, padding:12 }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                  const pct = (ctx.parsed/total*100).toFixed(1);
+                  return ' ' + ctx.label + ': ' + disp(ctx.parsed) + ' (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+  const curCenterEl = document.getElementById('pie-currency-center');
+  if (curCenterEl) curCenterEl.textContent = disp(currencyTotal);
+
+  // Expose base totals for the What-If simulator
+  window.BASE_TOTALS = { revEUR, qqqEUR, abnEUR, unilEUR, bondsEUR, ilhEUR, cashEUR };
+  if (typeof runSimulation === 'function') runSimulation();
+
+  // Record this month's snapshot for the trend chart
+  if (typeof recordMonthlySnapshot === 'function') {
+    recordMonthlySnapshot(totalEUR, revEUR, qqqEUR);
+  }
 
   // ── REVOLUT ALLOCATION PIE CHART (by individual asset) ──
   const eqqbVal = EQQB_SHARES * EQQB_PRICE_EST;
@@ -1046,6 +1346,136 @@ function updateDisplay() {
   const exQqqCenterEl = document.getElementById('pie-revolut-exqqq-center');
   if (exQqqCenterEl) exQqqCenterEl.textContent = disp(revExQqqTotal);
 }
+
+// ── WHAT-IF SIMULATOR ──
+let simWealthChart = null;
+let simCurrencyChart = null;
+
+function simInputs() {
+  const get = id => parseFloat(document.getElementById(id).value) || 0;
+  return {
+    revolut: get('sim-revolut'),
+    qqq:     get('sim-qqq'),
+    abn:     get('sim-abn'),
+    unil:    get('sim-unil'),
+    bonds:   get('sim-bonds'),
+    ilh:     get('sim-ilh'),
+    cash:    get('sim-cash'),
+  };
+}
+
+function runSimulation() {
+  if (!window.BASE_TOTALS) return;
+  const base = window.BASE_TOTALS;
+  const d = simInputs();
+
+  const newRevolut = Math.max(0, base.revEUR + d.revolut);
+  const newQqq     = Math.max(0, base.qqqEUR + d.qqq);
+  const newAbn     = Math.max(0, base.abnEUR + d.abn);
+  const newUnil    = Math.max(0, base.unilEUR + d.unil);
+  const newBonds   = Math.max(0, base.bondsEUR + d.bonds);
+  const newIlh     = Math.max(0, base.ilhEUR + d.ilh);
+  const newCash    = Math.max(0, base.cashEUR + d.cash);
+  const newTotal   = newRevolut + newQqq + newAbn + newUnil + newBonds + newIlh + newCash;
+
+  // Simulated Wealth Breakdown chart
+  const wData = [newRevolut, newQqq, newAbn, newUnil, newBonds, newIlh, newCash];
+  const wLabels = ['Revolut Portfolio','QQQ ETF','ABN AMRO ETF','Unilever (Locked)','Eurobonds','İşbank İLH Fon','Emergency Cash'];
+  const wColors = ['#7c6af7','#5b9bf0','#c9a84c','#f5a623','#2ecc8a','#4ecdc4','#6b6b80'];
+  const wCanvas = document.getElementById('sim-wealth-pie');
+  if (wCanvas && window.Chart) {
+    if (simWealthChart) {
+      simWealthChart.data.datasets[0].data = wData;
+      simWealthChart.update();
+    } else {
+      simWealthChart = new Chart(wCanvas, {
+        type: 'doughnut',
+        data: { labels: wLabels, datasets: [{ data: wData, backgroundColor: wColors, borderColor:'#0a0a0f', borderWidth:2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '60%',
+          plugins: {
+            legend: { position:'bottom', labels:{ color:'#e8e8f0', font:{family:"'DM Mono',monospace", size:8.5}, boxWidth:8, padding:6 } },
+            tooltip: { callbacks: { label: (ctx) => {
+              const t = ctx.dataset.data.reduce((a,b)=>a+b,0);
+              const pct = t>0 ? (ctx.parsed/t*100).toFixed(1) : '0.0';
+              return ' ' + ctx.label + ': ' + disp(ctx.parsed) + ' (' + pct + '%)';
+            }}}
+          }
+        }
+      });
+    }
+  }
+  const wCenter = document.getElementById('sim-pie-wealth-center');
+  if (wCenter) wCenter.textContent = disp(newTotal);
+
+  // Simulated Currency Exposure chart (same classification rules as the live one)
+  const simEur = newQqq + newUnil + newAbn + newCash;
+  const simUsd = newRevolut + newBonds;
+  const simTry = newIlh;
+  const simCurTotal = simEur + simUsd + simTry;
+
+  const cData = [simEur, simUsd, simTry];
+  const cLabels = ['EUR', 'USD', 'TRY (İşbank)'];
+  const cColors = ['#2ecc8a', '#5b9bf0', '#ff5c5c'];
+  const cCanvas = document.getElementById('sim-currency-pie');
+  if (cCanvas && window.Chart) {
+    if (simCurrencyChart) {
+      simCurrencyChart.data.datasets[0].data = cData;
+      simCurrencyChart.update();
+    } else {
+      simCurrencyChart = new Chart(cCanvas, {
+        type: 'doughnut',
+        data: { labels: cLabels, datasets: [{ data: cData, backgroundColor: cColors, borderColor:'#0a0a0f', borderWidth:2 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '60%',
+          plugins: {
+            legend: { position:'bottom', labels:{ color:'#e8e8f0', font:{family:"'DM Mono',monospace", size:8.5}, boxWidth:8, padding:6 } },
+            tooltip: { callbacks: { label: (ctx) => {
+              const t = ctx.dataset.data.reduce((a,b)=>a+b,0);
+              const pct = t>0 ? (ctx.parsed/t*100).toFixed(1) : '0.0';
+              return ' ' + ctx.label + ': ' + disp(ctx.parsed) + ' (' + pct + '%)';
+            }}}
+          }
+        }
+      });
+    }
+  }
+  const cCenter = document.getElementById('sim-pie-currency-center');
+  if (cCenter) cCenter.textContent = disp(simCurTotal);
+
+  // Delta summary line
+  const totalDelta = d.revolut + d.qqq + d.abn + d.unil + d.bonds + d.ilh + d.cash;
+  const summaryEl = document.getElementById('sim-delta-summary');
+  if (summaryEl) {
+    const sign = totalDelta >= 0 ? '+' : '';
+    summaryEl.textContent = 'Net değişim: ' + sign + disp(totalDelta) + ' · Yeni toplam servet: ' + disp(newTotal);
+  }
+}
+
+function simSellBondsAndSplit() {
+  const base = window.BASE_TOTALS;
+  if (!base) return;
+  const bondsVal = base.bondsEUR;
+  document.getElementById('sim-bonds').value = (-bondsVal).toFixed(0);
+  document.getElementById('sim-ilh').value = (bondsVal/2).toFixed(0);
+  document.getElementById('sim-revolut').value = (bondsVal/2).toFixed(0);
+  runSimulation();
+}
+
+function simReset() {
+  document.querySelectorAll('.sim-input').forEach(el => el.value = '');
+  runSimulation();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.sim-input').forEach(el => {
+    el.addEventListener('input', runSimulation);
+  });
+  const sellBtn = document.getElementById('sim-btn-sellbonds');
+  if (sellBtn) sellBtn.addEventListener('click', simSellBondsAndSplit);
+  const resetBtn = document.getElementById('sim-btn-reset');
+  if (resetBtn) resetBtn.addEventListener('click', simReset);
+});
 
 // ── INIT ──
 async function init() {
