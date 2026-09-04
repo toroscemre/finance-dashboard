@@ -135,7 +135,7 @@ header{padding:28px 20px 20px;border-bottom:1px solid var(--border);position:rel
 .t-foundation{background:rgba(150,150,160,0.16);color:#a8a8b5;}
 
 .lp{font-family:'DM Mono',monospace;font-size:12px;}
-.lp.load{color:var(--muted);font-size:10px;}
+.lp.load{color:var(--muted);font-size:10px;}@media(max-width:640px){.pos-table thead{display:none;}.pos-table{white-space:normal;}.pos-table,.pos-table tbody,.pos-table tr,.pos-table td{display:block;width:100%;}.pos-table tbody tr{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}.pos-table tbody tr:last-child{margin-bottom:0;}.pos-table td{border-bottom:none;padding:5px 0;display:flex;justify-content:space-between;align-items:center;font-size:13px;gap:12px;}.pos-table td:first-child{display:block;padding:0 0 10px;margin-bottom:8px;border-bottom:1px solid var(--border);}.pos-table td:not(:first-child):before{content:attr(data-label);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;}.pos-table td[data-label="Value"] .lp{font-weight:600;color:var(--text);font-size:14.5px;}.pos-table .ticker{font-size:12.5px;}.pos-table .pos-name{font-size:10.5px;margin-top:4px;}}
 .up{color:var(--green);}
 .down{color:var(--red);}
 .dn{color:var(--red);}
@@ -571,117 +571,117 @@ footer span{color:var(--accent);}
       <tbody>
         <tr>
           <td><span class="ticker t-core">NVDA</span><div class="pos-name">Mag 7 &middot; AI Chips</div></td>
-          <td class="num"><span class="lp" id="p-NVDA">&mdash;</span></td>
-          <td class="num" id="sh-NVDA">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-NVDA">&mdash;</span></td>
-          <td class="num" id="avg-NVDA">&mdash;</td>
-          <td class="num" id="ath-NVDA">&mdash;</td>
-          <td class="num" id="sb-NVDA">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-NVDA">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-NVDA">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-NVDA">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-NVDA">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-NVDA">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-NVDA">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">MSFT</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
-          <td class="num"><span class="lp" id="p-MSFT">&mdash;</span></td>
-          <td class="num" id="sh-MSFT">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-MSFT">&mdash;</span></td>
-          <td class="num" id="avg-MSFT">&mdash;</td>
-          <td class="num" id="ath-MSFT">&mdash;</td>
-          <td class="num" id="sb-MSFT">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-MSFT">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-MSFT">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-MSFT">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-MSFT">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-MSFT">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-MSFT">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">AMZN</span><div class="pos-name">Mag 7 &middot; Cloud / E-comm</div></td>
-          <td class="num"><span class="lp" id="p-AMZN">&mdash;</span></td>
-          <td class="num" id="sh-AMZN">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-AMZN">&mdash;</span></td>
-          <td class="num" id="avg-AMZN">&mdash;</td>
-          <td class="num" id="ath-AMZN">&mdash;</td>
-          <td class="num" id="sb-AMZN">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-AMZN">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-AMZN">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-AMZN">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-AMZN">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-AMZN">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-AMZN">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">GOOGL</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
-          <td class="num"><span class="lp" id="p-GOOGL">&mdash;</span></td>
-          <td class="num" id="sh-GOOGL">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-GOOGL">&mdash;</span></td>
-          <td class="num" id="avg-GOOGL">&mdash;</td>
-          <td class="num" id="ath-GOOGL">&mdash;</td>
-          <td class="num" id="sb-GOOGL">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-GOOGL">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-GOOGL">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-GOOGL">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-GOOGL">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-GOOGL">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-GOOGL">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">META</span><div class="pos-name">Mag 7 &middot; Social / AI Ads</div></td>
-          <td class="num"><span class="lp" id="p-META">&mdash;</span></td>
-          <td class="num" id="sh-META">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-META">&mdash;</span></td>
-          <td class="num" id="avg-META">&mdash;</td>
-          <td class="num" id="ath-META">&mdash;</td>
-          <td class="num" id="sb-META">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-META">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-META">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-META">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-META">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-META">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-META">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">EQQB</span><div class="pos-name">QQQ Foundation</div></td>
-          <td class="num"><span class="lp" id="p-EQQB">&mdash;</span></td>
-          <td class="num" id="sh-EQQB">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-EQQB">&mdash;</span></td>
-          <td class="num" id="avg-EQQB">&mdash;</td>
-          <td class="num" id="ath-EQQB">&mdash;</td>
-          <td class="num" id="sb-EQQB">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-EQQB">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-EQQB">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-EQQB">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-EQQB">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-EQQB">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-EQQB">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">JEDI</span><div class="pos-name">VanEck Space Innovators UCITS ETF</div></td>
-          <td class="num"><span class="lp" id="p-JEDI">&mdash;</span></td>
-          <td class="num" id="sh-JEDI">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-JEDI">&mdash;</span></td>
-          <td class="num" id="avg-JEDI">&mdash;</td>
-          <td class="num" id="ath-JEDI">&mdash;</td>
-          <td class="num" id="sb-JEDI">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-JEDI">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-JEDI">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-JEDI">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-JEDI">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-JEDI">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-JEDI">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ALAB</span><div class="pos-name">AI Networking</div></td>
-          <td class="num"><span class="lp" id="p-ALAB">&mdash;</span></td>
-          <td class="num" id="sh-ALAB">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-ALAB">&mdash;</span></td>
-          <td class="num" id="avg-ALAB">&mdash;</td>
-          <td class="num" id="ath-ALAB">&mdash;</td>
-          <td class="num" id="sb-ALAB">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-ALAB">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-ALAB">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-ALAB">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-ALAB">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-ALAB">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ALAB">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ORCL</span><div class="pos-name">Cloud / Enterprise</div></td>
-          <td class="num"><span class="lp" id="p-ORCL">&mdash;</span></td>
-          <td class="num" id="sh-ORCL">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-ORCL">&mdash;</span></td>
-          <td class="num" id="avg-ORCL">&mdash;</td>
-          <td class="num" id="ath-ORCL">&mdash;</td>
-          <td class="num" id="sb-ORCL">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-ORCL">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-ORCL">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-ORCL">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-ORCL">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-ORCL">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ORCL">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">PLTR</span><div class="pos-name">AI Software / Gov</div><div style="font-size:9px;color:var(--amber);margin-top:2px;" id="sb-target-PLTR"></div></td>
-          <td class="num"><span class="lp" id="p-PLTR">&mdash;</span></td>
-          <td class="num" id="sh-PLTR">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-PLTR">&mdash;</span></td>
-          <td class="num" id="avg-PLTR">&mdash;</td>
-          <td class="num" id="ath-PLTR">&mdash;</td>
-          <td class="num" id="sb-PLTR">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-PLTR">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-PLTR">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-PLTR">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-PLTR">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-PLTR">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-PLTR">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ARM</span><div class="pos-name">Chip IP</div></td>
-          <td class="num"><span class="lp" id="p-ARM">&mdash;</span></td>
-          <td class="num" id="sh-ARM">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-ARM">&mdash;</span></td>
-          <td class="num" id="avg-ARM">&mdash;</td>
-          <td class="num" id="ath-ARM">&mdash;</td>
-          <td class="num" id="sb-ARM">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-ARM">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-ARM">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-ARM">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-ARM">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-ARM">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ARM">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">BE</span><div class="pos-name">Energy / Fuel Cells</div></td>
-          <td class="num"><span class="lp" id="p-BE">&mdash;</span></td>
-          <td class="num" id="sh-BE">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-BE">&mdash;</span></td>
-          <td class="num" id="avg-BE">&mdash;</td>
-          <td class="num" id="ath-BE">&mdash;</td>
-          <td class="num" id="sb-BE">&mdash;</td>
+          <td class="num" data-label="Price"><span class="lp" id="p-BE">&mdash;</span></td>
+          <td class="num" data-label="Shares" id="sh-BE">&mdash;</td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-BE">&mdash;</span></td>
+          <td class="num" data-label="Avg" id="avg-BE">&mdash;</td>
+          <td class="num" data-label="ATH" id="ath-BE">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-BE">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">CASH</span><div class="pos-name">Revolut Cash Balance</div></td>
           <td class="num">&mdash;</td>
           <td class="num">&mdash;</td>
-          <td class="num"><span class="lp" id="pv-CASH">&mdash;</span></td>
+          <td class="num" data-label="Value"><span class="lp" id="pv-CASH">&mdash;</span></td>
           <td class="num">&mdash;</td>
           <td class="num">&mdash;</td>
           <td class="num">&mdash;</td>
