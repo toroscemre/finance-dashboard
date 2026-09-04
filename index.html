@@ -81,7 +81,7 @@ header{padding:28px 20px 20px;border-bottom:1px solid var(--border);position:rel
 .risk{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:500;margin-left:6px;}
 .risk-1,.risk-2{background:rgba(46,204,138,0.15);color:var(--green);}
 .risk-3,.risk-4{background:rgba(245,166,35,0.15);color:var(--amber);}
-.risk-5,.risk-6,.risk-7{background:rgba(255,92,92,0.15);color:var(--red);}
+.risk-5,.risk-6,.risk-7{background:rgba(255,92,92,0.15);color:var(--red);}.zone-badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;white-space:nowrap;}.zone-buy{background:rgba(46,204,138,0.15);color:var(--green);}.zone-watch{background:rgba(245,166,35,0.15);color:var(--amber);}.zone-skip{background:rgba(255,92,92,0.15);color:var(--red);}
 @media(max-width:700px){.asset-row{grid-template-columns:1.5fr 1fr 1fr;}.hm{display:none;}}
 
 /* CASHFLOW */
@@ -565,7 +565,7 @@ footer span{color:var(--accent);}
     <table class="pos-table">
       <thead>
         <tr>
-          <th>Ticker</th><th class="num">Price</th><th class="num">Shares</th><th class="num">Value</th><th class="num">Avg</th><th class="num">ATH</th><th class="num">Since-buy High</th>
+          <th>Ticker</th><th class="num">Price</th><th class="num">Shares</th><th class="num">Value</th><th class="num">Avg</th><th class="num">ATH</th><th class="num">Since-buy High</th><th class="num">Zone</th>
         </tr>
       </thead>
       <tbody>
@@ -576,7 +576,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-NVDA">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-NVDA">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-NVDA">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-NVDA">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-NVDA">&mdash;</td><td class="num" data-label="Zone" id="zone-NVDA">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">MSFT</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
@@ -585,7 +585,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-MSFT">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-MSFT">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-MSFT">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-MSFT">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-MSFT">&mdash;</td><td class="num" data-label="Zone" id="zone-MSFT">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">AMZN</span><div class="pos-name">Mag 7 &middot; Cloud / E-comm</div></td>
@@ -594,7 +594,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-AMZN">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-AMZN">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-AMZN">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-AMZN">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-AMZN">&mdash;</td><td class="num" data-label="Zone" id="zone-AMZN">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">GOOGL</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
@@ -603,7 +603,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-GOOGL">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-GOOGL">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-GOOGL">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-GOOGL">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-GOOGL">&mdash;</td><td class="num" data-label="Zone" id="zone-GOOGL">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-core">META</span><div class="pos-name">Mag 7 &middot; Social / AI Ads</div></td>
@@ -612,7 +612,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-META">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-META">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-META">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-META">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-META">&mdash;</td><td class="num" data-label="Zone" id="zone-META">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">EQQB</span><div class="pos-name">QQQ Foundation</div></td>
@@ -621,7 +621,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-EQQB">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-EQQB">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-EQQB">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-EQQB">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-EQQB">&mdash;</td><td class="num" data-label="Zone">ETF</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">JEDI</span><div class="pos-name">VanEck Space Innovators UCITS ETF</div></td>
@@ -630,7 +630,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-JEDI">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-JEDI">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-JEDI">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-JEDI">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-JEDI">&mdash;</td><td class="num" data-label="Zone">ETF</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ALAB</span><div class="pos-name">AI Networking</div></td>
@@ -639,7 +639,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-ALAB">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-ALAB">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-ALAB">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ALAB">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ALAB">&mdash;</td><td class="num" data-label="Zone" id="zone-ALAB">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ORCL</span><div class="pos-name">Cloud / Enterprise</div></td>
@@ -648,7 +648,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-ORCL">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-ORCL">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-ORCL">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ORCL">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ORCL">&mdash;</td><td class="num" data-label="Zone" id="zone-ORCL">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">PLTR</span><div class="pos-name">AI Software / Gov</div><div style="font-size:9px;color:var(--amber);margin-top:2px;" id="sb-target-PLTR"></div></td>
@@ -657,7 +657,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-PLTR">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-PLTR">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-PLTR">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-PLTR">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-PLTR">&mdash;</td><td class="num" data-label="Zone" id="zone-PLTR">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">ARM</span><div class="pos-name">Chip IP</div></td>
@@ -666,7 +666,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-ARM">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-ARM">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-ARM">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ARM">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-ARM">&mdash;</td><td class="num" data-label="Zone" id="zone-ARM">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-tactical">BE</span><div class="pos-name">Energy / Fuel Cells</div></td>
@@ -675,7 +675,7 @@ footer span{color:var(--accent);}
           <td class="num" data-label="Value"><span class="lp" id="pv-BE">&mdash;</span></td>
           <td class="num" data-label="Avg" id="avg-BE">&mdash;</td>
           <td class="num" data-label="ATH" id="ath-BE">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-BE">&mdash;</td>
+          <td class="num" data-label="Since-buy High" id="sb-BE">&mdash;</td><td class="num" data-label="Zone" id="zone-BE">&mdash;</td>
         </tr>
         <tr>
           <td><span class="ticker t-foundation">CASH</span><div class="pos-name">Revolut Cash Balance</div></td>
@@ -689,7 +689,7 @@ footer span{color:var(--accent);}
       </tbody>
     </table>
   </div>
-  <div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;padding:0 4px;">Prices &amp; values from Revolut snapshot, 30 Jul 2026 &middot; live-refresh overrides when available. * MSFT/META/EQQB since-buy highs are best-available and may predate your purchase. ALAB/ORCL/PLTR/ARM/BE since-buy highs left blank (purchase date unknown). PLTR sell target: $165-175.</div>
+  <div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;padding:0 4px;">Prices &amp; values from Revolut snapshot, 30 Jul 2026 &middot; live-refresh overrides when available. * MSFT/META/EQQB since-buy highs are best-available and may predate your purchase. ALAB/ORCL/PLTR/ARM/BE since-buy highs left blank (purchase date unknown). PLTR sell target: $165-175.</div><div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px;padding:0 4px;">Zone (Tom Nash / TackleBoy): ATH-discount ve earnings-gunu her acilista canli hesaplanir. Fundamentals (si/io/cd/rg/om) ve RSI periyodik guncellenir - 8 hisse 2026-05-19, ARM 2026-09-04, BE 2026-08-31 itibariyla. Guncellemek icin Claude'a soyle.</div>
   <details style="margin-top:8px;padding:0 4px;">
     <summary style="cursor:pointer;font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;">QQQ (EQQB) &mdash; top 20 underlying holdings &amp; approx. &euro; exposure</summary>
     <div style="margin-top:8px;overflow-x:auto;">
@@ -836,7 +836,7 @@ const POS = {};
 for (const t of ['NVDA','GOOGL','MSFT','AMZN','META','ALAB','ORCL','PLTR','ARM','BE']) {
   POS[t] = {shares:STOCK_DATA[t].shares, avg:STOCK_DATA[t].avg};
 }
-const EQQB_SHARES = STOCK_DATA.EQQB.shares;
+const EQQB_SHARES = STOCK_DATA.EQQB.shares;window.TACKLEBOY={NVDA:{si:10,io:10,cd:10,rg:10,om:10,rsi:70,asOf:'2026-05-19'},MSFT:{si:10,io:10,cd:10,rg:10,om:10,rsi:41,asOf:'2026-05-19'},GOOGL:{si:10,io:10,cd:10,rg:10,om:10,rsi:49,asOf:'2026-05-19'},AMZN:{si:10,io:10,cd:10,rg:10,om:10,rsi:55,asOf:'2026-05-19'},META:{si:10,io:10,cd:10,rg:10,om:10,rsi:62,asOf:'2026-05-19'},ALAB:{si:5,io:10,cd:10,rg:10,om:10,rsi:66,asOf:'2026-05-19'},ORCL:{si:10,io:10,cd:0,rg:10,om:5,rsi:38,asOf:'2026-05-19'},PLTR:{si:5,io:5,cd:10,rg:10,om:10,rsi:28,asOf:'2026-05-19'},ARM:{si:0,io:0,cd:10,rg:10,om:5,rsi:71,asOf:'2026-09-04'},BE:{si:5,io:10,cd:0,rg:10,om:5,rsi:46,asOf:'2026-08-31'}};let EARN_DAYS={};async function fetchEarningsDays(sym){try{const today=new Date();const to=new Date(today.getTime()+180*86400000);const f=today.toISOString().slice(0,10);const t=to.toISOString().slice(0,10);const r=await fetch(`https://finnhub.io/api/v1/calendar/earnings?symbol=${sym}&from=${f}&to=${t}&token=${FKEY}`,{cache:'no-store'});const d=await r.json();const list=(d&&d.earningsCalendar)||[];if(!list.length)return null;const dates=list.map(e=>new Date(e.date+'T00:00:00'));dates.sort((a,b)=>a-b);const days=Math.round((dates[0]-today)/86400000);return days>=0?days:null;}catch(e){return null;}}async function fetchAllEarningsDays(){const syms=Object.keys(TACKLEBOY);for(const s of syms){const d=await fetchEarningsDays(s);if(d!=null)EARN_DAYS[s]=d;}renderPositions();}function scoreTackle(tb,athDisc,earnDays){const raw=tb.si+tb.io+tb.cd+tb.rg+tb.om;const proj=Math.round((raw/50)*125);let band;if(proj===125)band='Perfect';else if(proj>=100)band='Great';else if(proj>=75)band='Average';else band='Poor';const rsiOK=tb.rsi<50;const discOK=athDisc!=null&&athDisc<=-15;const earnOK=earnDays==null||earnDays>=5;let zone,zoneLabel,verdict;if(proj>=100&&rsiOK&&discOK&&earnOK){zone='buy';zoneLabel='Zone 1 - Buy';verdict='Kalite + asiri satim + ATHden yeterli mesafe';}else if(proj>=75&&tb.rsi<=70&&athDisc!=null&&athDisc<=-5){zone='watch';zoneLabel='Zone 2 - Watch';verdict=(proj===125&&tb.rsi>50)?'Mukemmel sirket, RSI sogumasini bekle':(proj===125?'Mukemmel sirket, daha derin iskonto bekle':'Kalite iyi, zamanlama kotu - alarm kur');}else{zone='skip';zoneLabel='Zone 3 - Skip';verdict=proj<75?'Framework yetersiz kaliyor':(tb.rsi>70?'Kalite iyi ama asiri alim - kovalama':'ATHye cok yakin - geri cekilmeyi bekle');}return{raw,proj,band,zone,zoneLabel,verdict};}
 const EQQB_PRICE_EST = STOCK_DATA.EQQB.priceEUR;
 const JEDI_SHARES = STOCK_DATA.JEDI.shares;
 const JEDI_PRICE_EST = STOCK_DATA.JEDI.priceEUR;
@@ -1091,7 +1091,7 @@ function renderPositions() {
 
     const sbEUR = toDisplayEUR(d.sb, d.sbCur||'USD');
     const sbEl = document.getElementById('sb-'+t);
-    if (sbEl) sbEl.textContent = sbEUR!=null ? disp(sbEUR)+(d.approx?'*':'') : '—';
+    if (sbEl) sbEl.textContent = sbEUR!=null ? disp(sbEUR)+(d.approx?'*':'') : '—';const tb=TACKLEBOY[t];if(tb){const liveUSD=prices[t]||(d.priceEUR*R.eurusd);const athDisc=d.ath?((liveUSD-d.ath)/d.ath*100):null;const sc=scoreTackle(tb,athDisc,EARN_DAYS[t]);const zEl=document.getElementById('zone-'+t);if(zEl){zEl.textContent=sc.zoneLabel;zEl.className='zone-badge zone-'+sc.zone;zEl.title='Skor '+sc.proj+'/125, RSI '+tb.rsi+' ('+tb.asOf+'), '+sc.verdict;}}
 
     if (d.sellTarget) {
       const stEl = document.getElementById('sb-target-PLTR');
@@ -1478,7 +1478,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── INIT ──
-async function init() {
+async function init() {fetchAllEarningsDays();
   await fetchRates();
   await fetchAllPrices();
 }
