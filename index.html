@@ -410,7 +410,7 @@ footer span{color:var(--accent);}
         <div id="pie-currency-center" style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);">—</div>
       </div>
     </div>
-    <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;">EUR: QQQ + Unilever + ABN AMRO + Emergency Cash &middot; USD: Revolut Portfolio (hisseler+JEDI+nakit) + Eurobonds &middot; TRY: İşbank İLH Fon</div>
+    <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;">EUR: QQQ + Unilever + ABN AMRO + Emergency Cash &middot; USD: Revolut Portfolio (hisseler+JEDI+nakit) &middot; TRY: İşbank İLH Fon</div>
   </div>
 
   <!-- PORTFOLIO TREND 2026 -->
@@ -441,7 +441,7 @@ footer span{color:var(--accent);}
       <label for="sim-unil" style="font-size:11px;color:var(--text);">Unilever</label>
       <input type="number" id="sim-unil" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
 
-            <label for="sim-ilh" style="font-size:11px;color:var(--text);">İşbank İLH Fon</label>
+      <label for="sim-ilh" style="font-size:11px;color:var(--text);">İşbank İLH Fon</label>
       <input type="number" id="sim-ilh" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
 
       <label for="sim-cash" style="font-size:11px;color:var(--text);">Emergency Cash</label>
@@ -449,7 +449,6 @@ footer span{color:var(--accent);}
     </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-      <button id="sim-btn-sellbonds" style="padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:rgba(124,106,247,0.1);color:var(--accent);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Eurobond'ları sat &rarr; yarı İşbank, yarı Revolut'a böl</button>
       <button id="sim-btn-reset" style="padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Sıfırla</button>
     </div>
 
@@ -507,12 +506,6 @@ footer span{color:var(--accent);}
       <div class="asset-val" id="av-unilever">—</div>
       <div class="asset-sub hm">EUR</div>
       <div><span class="liq liq-n">Locked</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">Eurobonds</div><div class="asset-sub">USD fixed income · 6&ndash;7% / year <span class="risk risk-4">Risk 4/7 · FX</span></div></div>
-      <div class="asset-val" id="av-bonds">—</div>
-      <div class="asset-sub hm">USD</div>
-      <div><span class="liq liq-y">Liquid</span></div>
     </div>
     <div class="asset-row">
       <div><div class="asset-name">İşbank İLH Fon</div><div class="asset-sub">TRY fund · %0.1069/gün bileşik <span class="risk risk-7">Risk 7/7 · FX</span></div></div>
@@ -826,7 +819,7 @@ const STOCK_DATA = {
   EQQB:  {shares:11.568769, priceEUR:415.75, avg:373, avgCur:'EUR', ath:426.30, athCur:'EUR', sb:426.30, sbCur:'EUR', approx:true},
   JEDI:  {shares:1.00,      priceEUR:67.05,  avg:86,  avgCur:'EUR'},
 };
-const CASH_EUR = 165.31; // idle cash sitting in the Revolut brokerage account
+const CASH_EUR = 8769.68; // idle cash in Revolut brokerage account - includes $10,000 added 2026-09-05 (converted at EUR/USD 1.1622)
 
 // Convenience aliases used elsewhere in the wealth calcs
 const POS = {};
@@ -841,8 +834,7 @@ const JEDI_PRICE_EST = STOCK_DATA.JEDI.priceEUR;
 // Fixed assets in USD unless noted
 const ASSETS = {
   unilever: {eur:50300},   // locked, as of July 2026
-  bonds:    {usd:21918},
-  ilh:      {try:1723951}, // seed principal, only used if no localStorage state exists yet
+  ilh:      {try:2250000}, // seed principal as of 2026-09-05 (Eurobond satisinin yarisi eklendi) - only used if no localStorage state exists yet
   cash:     {eur:20000},
   abn:      {eur:3162},
 };
@@ -852,7 +844,7 @@ const ASSETS = {
 // localStorage so the balance keeps compounding across sessions even if the
 // dashboard isn't opened every day — on each load we catch up all missed days at once.
 const ILH_DAILY_RATE = 0.001069;
-const ILH_STORAGE_KEY = 'watchdog_ilh_state';
+const ILH_STORAGE_KEY = 'watchdog_ilh_state_v2'; // bumped 2026-09-05 to reseed after Eurobond to ILH transfer (2.25M TL)
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -1118,12 +1110,11 @@ function updateDisplay() {
   const qqqEUR = EQQB_SHARES * EQQB_PRICE_EST;
 
   const unilEUR = ASSETS.unilever.eur;
-  const bondsEUR = ASSETS.bonds.usd / R.eurusd;
   const ilhEUR = getIlhBalanceTRY() / R.eurtry;
   const cashEUR = ASSETS.cash.eur;
   const abnEUR = ASSETS.abn.eur;
 
-  const liquidEUR = bondsEUR + ilhEUR + cashEUR + abnEUR + revEUR + qqqEUR;
+  const liquidEUR = ilhEUR + cashEUR + abnEUR + revEUR + qqqEUR;
   const lockedEUR = unilEUR;
   const totalEUR = liquidEUR + lockedEUR;
 
@@ -1133,7 +1124,6 @@ function updateDisplay() {
   document.getElementById('c-surplus').textContent = disp(MONTHLY_SURPLUS_EUR);
 
   document.getElementById('av-unilever').textContent = disp(unilEUR);
-  document.getElementById('av-bonds').textContent = usdDisp(ASSETS.bonds.usd);
   document.getElementById('av-ilh').textContent = disp(ilhEUR);
   document.getElementById('av-cash').textContent = disp(cashEUR);
   document.getElementById('av-abn').textContent = disp(abnEUR);
@@ -1141,9 +1131,9 @@ function updateDisplay() {
   document.getElementById('av-qqq').textContent = disp(qqqEUR);
 
   // ── WEALTH PIE CHART ──
-  const chartData = [revEUR, qqqEUR, abnEUR, unilEUR, bondsEUR, ilhEUR, cashEUR];
-  const chartLabels = ['Revolut Portfolio','QQQ ETF','ABN AMRO ETF','Unilever (Locked)','Eurobonds','İşbank İLH Fon','Emergency Cash'];
-  const chartColors = ['#7c6af7','#5b9bf0','#c9a84c','#f5a623','#2ecc8a','#4ecdc4','#6b6b80'];
+  const chartData = [revEUR, qqqEUR, abnEUR, unilEUR, ilhEUR, cashEUR];
+  const chartLabels = ['Revolut Portfolio','QQQ ETF','ABN AMRO ETF','Unilever (Locked)','İşbank İLH Fon','Emergency Cash'];
+  const chartColors = ['#7c6af7','#5b9bf0','#c9a84c','#f5a623','#4ecdc4','#6b6b80'];
   const canvas = document.getElementById('wealth-pie');
   if (canvas && window.Chart) {
     if (wealthChart) {
@@ -1184,14 +1174,14 @@ function updateDisplay() {
 
   // ── CURRENCY EXPOSURE PIE CHART ──
   // EUR: idle cash + JEDI (EUR-listed) + ABN AMRO + Emergency Cash
-  // USD: individual stocks + QQQ/EQQB (unhedged Nasdaq-100) + Eurobonds
+  // USD: individual stocks + QQQ/EQQB (unhedged Nasdaq-100)
   // GBP: Unilever (ULVR, London-listed)
   // TRY: İşbank İLH Fon
   // EUR: QQQ/EQQB (trades in EUR) + Unilever + ABN AMRO + Emergency Cash
-  // USD: whole Revolut Portfolio (stocks + JEDI + idle cash, per your simplification) + Eurobonds
+  // USD: whole Revolut Portfolio (stocks + JEDI + idle cash, per your simplification)
   // TRY: İşbank İLH Fon
   const eurExposure = qqqEUR + unilEUR + abnEUR + cashEUR;
-  const usdExposure = revEUR + bondsEUR;
+  const usdExposure = revEUR;
   const tryExposure = ilhEUR;
   const currencyTotal = eurExposure + usdExposure + tryExposure;
 
@@ -1237,7 +1227,7 @@ function updateDisplay() {
   if (curCenterEl) curCenterEl.textContent = disp(currencyTotal);
 
   // Expose base totals for the What-If simulator
-  window.BASE_TOTALS = { revEUR, qqqEUR, abnEUR, unilEUR, bondsEUR, ilhEUR, cashEUR };
+  window.BASE_TOTALS = { revEUR, qqqEUR, abnEUR, unilEUR, ilhEUR, cashEUR };
   if (typeof runSimulation === 'function') runSimulation();
 
   // Record this month's snapshot for the trend chart
@@ -1355,7 +1345,6 @@ function simInputs() {
     qqq:     get('sim-qqq'),
     abn:     get('sim-abn'),
     unil:    get('sim-unil'),
-    bonds:   get('sim-bonds'),
     ilh:     get('sim-ilh'),
     cash:    get('sim-cash'),
   };
@@ -1370,15 +1359,14 @@ function runSimulation() {
   const newQqq     = Math.max(0, base.qqqEUR + d.qqq);
   const newAbn     = Math.max(0, base.abnEUR + d.abn);
   const newUnil    = Math.max(0, base.unilEUR + d.unil);
-  const newBonds   = Math.max(0, base.bondsEUR + d.bonds);
   const newIlh     = Math.max(0, base.ilhEUR + d.ilh);
   const newCash    = Math.max(0, base.cashEUR + d.cash);
-  const newTotal   = newRevolut + newQqq + newAbn + newUnil + newBonds + newIlh + newCash;
+  const newTotal   = newRevolut + newQqq + newAbn + newUnil + newIlh + newCash;
 
   // Simulated Wealth Breakdown chart
-  const wData = [newRevolut, newQqq, newAbn, newUnil, newBonds, newIlh, newCash];
-  const wLabels = ['Revolut Portfolio','QQQ ETF','ABN AMRO ETF','Unilever (Locked)','Eurobonds','İşbank İLH Fon','Emergency Cash'];
-  const wColors = ['#7c6af7','#5b9bf0','#c9a84c','#f5a623','#2ecc8a','#4ecdc4','#6b6b80'];
+  const wData = [newRevolut, newQqq, newAbn, newUnil, newIlh, newCash];
+  const wLabels = ['Revolut Portfolio','QQQ ETF','ABN AMRO ETF','Unilever (Locked)','İşbank İLH Fon','Emergency Cash'];
+  const wColors = ['#7c6af7','#5b9bf0','#c9a84c','#f5a623','#4ecdc4','#6b6b80'];
   const wCanvas = document.getElementById('sim-wealth-pie');
   if (wCanvas && window.Chart) {
     if (simWealthChart) {
@@ -1407,7 +1395,7 @@ function runSimulation() {
 
   // Simulated Currency Exposure chart (same classification rules as the live one)
   const simEur = newQqq + newUnil + newAbn + newCash;
-  const simUsd = newRevolut + newBonds;
+  const simUsd = newRevolut;
   const simTry = newIlh;
   const simCurTotal = simEur + simUsd + simTry;
 
@@ -1441,22 +1429,12 @@ function runSimulation() {
   if (cCenter) cCenter.textContent = disp(simCurTotal);
 
   // Delta summary line
-  const totalDelta = d.revolut + d.qqq + d.abn + d.unil + d.bonds + d.ilh + d.cash;
+  const totalDelta = d.revolut + d.qqq + d.abn + d.unil + d.ilh + d.cash;
   const summaryEl = document.getElementById('sim-delta-summary');
   if (summaryEl) {
     const sign = totalDelta >= 0 ? '+' : '';
     summaryEl.textContent = 'Net değişim: ' + sign + disp(totalDelta) + ' · Yeni toplam servet: ' + disp(newTotal);
   }
-}
-
-function simSellBondsAndSplit() {
-  const base = window.BASE_TOTALS;
-  if (!base) return;
-  const bondsVal = base.bondsEUR;
-  document.getElementById('sim-bonds').value = (-bondsVal).toFixed(0);
-  document.getElementById('sim-ilh').value = (bondsVal/2).toFixed(0);
-  document.getElementById('sim-revolut').value = (bondsVal/2).toFixed(0);
-  runSimulation();
 }
 
 function simReset() {
@@ -1468,8 +1446,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.sim-input').forEach(el => {
     el.addEventListener('input', runSimulation);
   });
-  const sellBtn = document.getElementById('sim-btn-sellbonds');
-  if (sellBtn) sellBtn.addEventListener('click', simSellBondsAndSplit);
   const resetBtn = document.getElementById('sim-btn-reset');
   if (resetBtn) resetBtn.addEventListener('click', simReset);
 });
