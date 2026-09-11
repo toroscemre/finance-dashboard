@@ -117,6 +117,16 @@ td.num,th.num{text-align:right;}
 .rule .n{font-family:'DM Mono',monospace;color:var(--accent);flex-shrink:0;}
 .rule b{color:var(--text);}.rule .d{color:var(--muted);}
 
+.chart-sub{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;margin:-6px 0 12px;}
+.pie-wrap{position:relative;max-width:260px;margin:0 auto;height:260px;}
+.pie-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.pie-center-lbl{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+.pie-center-val{font-family:'DM Serif Display',serif;font-size:19px;color:var(--text);margin-top:2px;}
+.pie-legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:3px 10px;margin-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.pie-legend div{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.pie-legend i{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.pie-legend b{color:var(--text);font-weight:500;}
+.pie-legend span{margin-left:auto;}
 .trend{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
 .trend-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
 .trend-head h3{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;}
@@ -245,6 +255,33 @@ footer{text-align:center;padding:24px 0 36px;font-size:10px;color:var(--muted);f
       <tbody id="tb-space"></tbody>
     </table></div>
   </details>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Revolut Dağılımı</h3>
+      <div class="chart-sub">Hesabın tamamı &middot; EQQB ve nakit dahil</div>
+      <div class="pie-wrap">
+        <canvas id="alloc-pie"></canvas>
+        <div class="pie-center">
+          <div class="pie-center-lbl">Toplam</div>
+          <div class="pie-center-val" id="alloc-center">&mdash;</div>
+        </div>
+      </div>
+      <div class="pie-legend" id="alloc-legend"></div>
+    </div>
+    <div class="card">
+      <h3>Revolut Dağılımı &mdash; EQQB hariç</h3>
+      <div class="chart-sub">Aynı hesap, kök (EQQB) çıkarılmış</div>
+      <div class="pie-wrap">
+        <canvas id="alloc-pie-ex"></canvas>
+        <div class="pie-center">
+          <div class="pie-center-lbl">EQQB hariç</div>
+          <div class="pie-center-val" id="alloc-center-ex">&mdash;</div>
+        </div>
+      </div>
+      <div class="pie-legend" id="alloc-legend-ex"></div>
+    </div>
+  </div>
 
   <div class="grid2">
     <div class="card">
@@ -389,7 +426,73 @@ function render(){
   rh+='<div class="risk-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:10px;"><div class="l"><b>Toplam hisse</b></div><div><span class="v">−'+usd(stocks*.1)+'</span><span class="p">'+(stocks*.1/total*100).toFixed(1)+'%</span></div></div>';
   $('risk-rows').innerHTML=rh;
 
+  drawAllocationPies();
   recordSnapshot();
+}
+
+// ═══ DAGILIM PASTALARI ═══
+// Renk = katman (sayfanin dogrulanmis 5 rengi); katman icindeki her varlik ayri ton kademesi.
+// Kimlik renge birakilmaz: legend + tooltip + dilim araligi tasir.
+const ALLOC_STEPS = {
+  root:  ['#c9a84c'],
+  comp:  ['#9ec4f7','#7db0f4','#5b9bf0','#3f7fd4','#2a63ad'],
+  sat:   ['#fad08a','#f8bb57','#f5a623','#d88a12','#b06e0c'],
+  space: ['#4ecdc4'],
+  cash:  ['#6b6b80'],
+};
+const ALLOC_LAYER_TR = {root:'Kök',comp:'Compounder',sat:'Uydu',space:'Uzay',cash:'Nakit'};
+let allocChart=null, allocChartEx=null;
+
+function allocSlices(){
+  const out=[];
+  for (const g of ['root','comp','sat','space']){
+    let i=0;
+    for (const [t,p] of Object.entries(POS[g])){
+      out.push({label:t, layer:g, value:priceUSD(t,p)*p.sh, color:ALLOC_STEPS[g][i % ALLOC_STEPS[g].length]});
+      i++;
+    }
+  }
+  out.push({label:'Nakit', layer:'cash', value:CASH_USD, color:ALLOC_STEPS.cash[0]});
+  return out;
+}
+
+function renderLegend(el, slices, total){
+  if(!el) return;
+  el.innerHTML = slices.map(s =>
+    '<div><i style="background:'+s.color+'"></i><b>'+s.label+'</b><span>'+(s.value/total*100).toFixed(1)+'%</span></div>'
+  ).join('');
+}
+
+function buildPie(canvasId, centerId, legendId, slices, existing){
+  const cv=document.getElementById(canvasId);
+  if(!cv || !window.Chart) return existing;
+  const total=slices.reduce((a,b)=>a+b.value,0);
+  const ce=document.getElementById(centerId);
+  if(ce) ce.textContent=usd(total);
+  renderLegend(document.getElementById(legendId), slices, total);
+  const data={
+    labels: slices.map(s=>s.label),
+    datasets:[{
+      data: slices.map(s=>s.value),
+      backgroundColor: slices.map(s=>s.color),
+      borderColor:'#111118', borderWidth:2, hoverOffset:6,
+    }]
+  };
+  if(existing){ existing.data=data; existing.update(); return existing; }
+  return new Chart(cv,{type:'doughnut',data,options:{
+    responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{
+      const s=slices[c.dataIndex];
+      return ' '+s.label+' ('+ALLOC_LAYER_TR[s.layer]+'): '+usd(c.parsed)+' · '+(c.parsed/total*100).toFixed(1)+'%';
+    }}}}
+  }});
+}
+
+function drawAllocationPies(){
+  const all=allocSlices();
+  allocChart   = buildPie('alloc-pie',    'alloc-center',    'alloc-legend',    all, allocChart);
+  const ex=all.filter(s=>s.label!=='EQQB');
+  allocChartEx = buildPie('alloc-pie-ex', 'alloc-center-ex', 'alloc-legend-ex', ex,  allocChartEx);
 }
 
 // ═══ TREND — localStorage, aylık snapshot ═══
