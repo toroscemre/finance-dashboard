@@ -290,30 +290,31 @@ footer{text-align:center;padding:24px 0 36px;font-size:10px;color:var(--muted);f
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const FKEY='d7hpv81r01qirk40j0p0d7hpv81r01qirk40j0pg';
-let EURUSD=1.1656;
+let EURUSD=1.1572; // fallback; canli kur frankfurter'dan cekilir
 let live={};
 
-// ═══ POZİSYONLAR — Revolut ekranından güncelle (8 Eyl 2026) ═══
+// ═══ POZİSYONLAR — Revolut ekranından güncelle (11 Eyl 2026) ═══
 // snap: son bilinen fiyat (USD; EQQB/JEDI için EUR) · avg: ort. maliyet · hi: 52h zirve (USD)
 const POS={
-  root:{ EQQB:{n:'Invesco Nasdaq-100 Acc',sh:12.26,snap:435.90,avg:377.0,cur:'EUR'} },
+  root:{ EQQB:{n:'Invesco Nasdaq-100 Acc',sh:12.26,snap:432.80,avg:377.53,cur:'EUR'} },
   comp:{
-    NVDA:{n:'AI Chips',sh:20.29,snap:226.05,avg:180.0,hi:236.54},
-    GOOGL:{n:'Cloud / AI',sh:9.36,snap:338.87,avg:309.0,hi:408.61},
-    MSFT:{n:'Cloud / AI',sh:5.06,snap:492.54,avg:364.0,hi:553.72},
-    AMZN:{n:'AWS / E-comm',sh:5.31,snap:257.20,avg:201.0,hi:287.20},
-    META:{n:'Social / AI Ads',sh:1.50,snap:618.61,avg:526.0,hi:790.80},
+    NVDA:{n:'AI Chips',sh:20.29,snap:220.16,avg:180.50,hi:236.54},
+    GOOGL:{n:'Cloud / AI',sh:10.36,snap:334.02,avg:311.50,hi:408.61},
+    MSFT:{n:'Cloud / AI',sh:5.06,snap:493.40,avg:368.65,hi:553.72},
+    AMZN:{n:'AWS / E-comm',sh:5.31,snap:253.66,avg:204.60,hi:287.20},
+    META:{n:'Social / AI Ads',sh:1.50,snap:648.30,avg:535.96,hi:790.80},
   },
   sat:{
-    ARM:{n:'Chip IP',sh:4.00,snap:267.35,avg:270.4,hi:452.70},
-    ORCL:{n:'Cloud / Enterprise',sh:6.00,snap:163.17,avg:166.5,hi:345.72},
-    ALAB:{n:'AI Connectivity',sh:2.47,snap:293.13,avg:202.2,hi:499.48},
-    PLTR:{n:'AI Software',sh:4.00,snap:172.06,avg:135.0,hi:207.52},
-    BE:{n:'Fuel Cells',sh:2.00,snap:283.15,avg:205.0,hi:351.28},
+    ARM:{n:'Chip IP',sh:4.00,snap:256.40,avg:269.70,hi:452.70},
+    ORCL:{n:'Cloud / Enterprise',sh:6.00,snap:163.72,avg:166.33,hi:345.72},
+    ALAB:{n:'AI Connectivity',sh:3.47,snap:287.73,avg:230.24,hi:499.48},
+    PLTR:{n:'AI Software',sh:6.00,snap:167.71,avg:147.14,hi:207.52},
+    BE:{n:'Fuel Cells',sh:4.00,snap:266.25,avg:239.37,hi:351.28},
   },
-  space:{ JEDI:{n:'VanEck Space Innovators',sh:2.79,snap:70.70,avg:71.9,cur:'EUR'} }
+  space:{ JEDI:{n:'VanEck Space Innovators',sh:2.79,snap:68.05,avg:71.91,cur:'EUR'} }
 };
-const CASH_USD=7909;
+// Firsat rezervi: Revolut brokerage nakit 2.744,81 + hesap disindaki 5.000 = 7.744,81
+const CASH_USD=7744.81;
 const TGT_COMP=3500, TGT_SAT=1000, ROOT_FLOOR=0.25;
 
 const $=id=>document.getElementById(id);
