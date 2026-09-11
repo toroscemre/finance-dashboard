@@ -422,264 +422,10 @@ footer span{color:var(--accent);}
     </div>
     <div id="trend-summary" style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;"></div>
   </div>
-
-  <!-- WHAT-IF SIMULATOR -->
-  <div class="card" style="padding:18px;margin-bottom:12px;">
-    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Ne Olurdu? Simülatörü</div>
-    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;">Her hesaba eklemek/çıkarmak istediğin &euro; miktarını gir &mdash; grafikler canlı güncellenir</div>
-
-    <div id="sim-inputs" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center;margin-bottom:12px;">
-      <label for="sim-revolut" style="font-size:11px;color:var(--text);">Revolut Portfolio</label>
-      <input type="number" id="sim-revolut" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-
-      <label for="sim-qqq" style="font-size:11px;color:var(--text);">QQQ ETF</label>
-      <input type="number" id="sim-qqq" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-
-      <label for="sim-abn" style="font-size:11px;color:var(--text);">ABN AMRO ETF</label>
-      <input type="number" id="sim-abn" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-
-      <label for="sim-unil" style="font-size:11px;color:var(--text);">Unilever</label>
-      <input type="number" id="sim-unil" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-
-      <label for="sim-ilh" style="font-size:11px;color:var(--text);">İşbank İLH Fon</label>
-      <input type="number" id="sim-ilh" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-
-      <label for="sim-cash" style="font-size:11px;color:var(--text);">Emergency Cash</label>
-      <input type="number" id="sim-cash" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
-    </div>
-
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-      <button id="sim-btn-reset" style="padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Sıfırla</button>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div>
-        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Wealth Breakdown</div>
-        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
-          <canvas id="sim-wealth-pie"></canvas>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
-            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
-            <div id="sim-pie-wealth-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Currency Exposure</div>
-        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
-          <canvas id="sim-currency-pie"></canvas>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
-            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
-            <div id="sim-pie-currency-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="sim-delta-summary" style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:12px;"></div>
-  </div>
-
-  <!-- ASSET TABLE -->
-  <div class="card" style="padding:0;overflow:hidden;">
-    <div class="asset-row hdr">
-      <div>Asset</div><div>Value</div><div class="hm">Currency</div>
-      <div>Status</div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">Revolut Portfolio</div><div class="asset-sub">All stocks except QQQ <span class="risk risk-5">Risk 5/7</span></div></div>
-      <div class="asset-val" id="av-revolut">—</div>
-      <div class="asset-sub hm">USD / EUR</div>
-      <div><span class="liq liq-y">Liquid</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">QQQ ETF</div><div class="asset-sub">EQQB · €200/month DCA <span class="risk risk-3">Risk 3/7</span></div></div>
-      <div class="asset-val" id="av-qqq">—</div>
-      <div class="asset-sub hm">EUR</div>
-      <div><span class="liq liq-y">Liquid</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">ABN AMRO ETF</div><div class="asset-sub">€150/month DCA · Matig Offensief <span class="risk risk-2">Risk 2/7</span></div></div>
-      <div class="asset-val" id="av-abn">—</div>
-      <div class="asset-sub hm">EUR</div>
-      <div><span class="liq liq-y">Liquid</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">Unilever Shares</div><div class="asset-sub">Corporate bonus scheme · 3yr lock · ULVR <span class="risk risk-3">Risk 3/7</span></div></div>
-      <div class="asset-val" id="av-unilever">—</div>
-      <div class="asset-sub hm">EUR</div>
-      <div><span class="liq liq-n">Locked</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">İşbank İLH Fon</div><div class="asset-sub">TRY fund · %0.1069/gün bileşik <span class="risk risk-7">Risk 7/7 · FX</span></div></div>
-      <div class="asset-val" id="av-ilh">—</div>
-      <div class="asset-sub hm">TRY</div>
-      <div><span class="liq liq-y">Liquid</span></div>
-    </div>
-    <div class="asset-row">
-      <div><div class="asset-name">Emergency Cash</div><div class="asset-sub">6+ months expenses · never touch <span class="risk risk-1">Risk 1/7</span></div></div>
-      <div class="asset-val" id="av-cash">—</div>
-      <div class="asset-sub hm">EUR</div>
-      <div><span class="liq liq-r">Reserved</span></div>
-    </div>
-  </div>
 </div>
 
 <div class="section">
-  <div class="section-title">Live Portfolio</div>
-
-  <!-- REVOLUT ALLOCATION PIE CHART -->
-  <div class="card" style="padding:18px;margin-bottom:12px;">
-    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Revolut Allocation</div>
-    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;">By asset, within your Revolut account (incl. QQQ)</div>
-    <div style="position:relative;max-width:280px;margin:0 auto;height:280px;">
-      <canvas id="revolut-pie"></canvas>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
-        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;">Revolut</div>
-        <div id="pie-revolut-center" style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);">—</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- REVOLUT ALLOCATION (EX-QQQ) PIE CHART -->
-  <div class="card" style="padding:18px;margin-bottom:12px;">
-    <div style="font-size:13px;font-weight:600;margin-bottom:2px;">Revolut Allocation &mdash; ex QQQ</div>
-    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;">Same account, QQQ/EQQB excluded</div>
-    <div style="position:relative;max-width:280px;margin:0 auto;height:280px;">
-      <canvas id="revolut-exqqq-pie"></canvas>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
-        <div style="font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;">Ex-QQQ</div>
-        <div id="pie-revolut-exqqq-center" style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);">—</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="padding:0;overflow:hidden;overflow-x:auto;">
-    <table class="pos-table">
-      <thead>
-        <tr>
-          <th>Ticker</th><th class="num">Price</th><th class="num">Shares</th><th class="num">Value</th><th class="num">Avg</th><th class="num">ATH</th><th class="num">Since-buy High</th><th class="num">Zone</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="ticker t-core">NVDA</span><div class="pos-name">Mag 7 &middot; AI Chips</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-NVDA">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-NVDA">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-NVDA">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-NVDA">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-NVDA">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-NVDA">&mdash;</td><td class="num" data-label="Zone" id="zone-NVDA">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-core">MSFT</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-MSFT">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-MSFT">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-MSFT">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-MSFT">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-MSFT">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-MSFT">&mdash;</td><td class="num" data-label="Zone" id="zone-MSFT">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-core">AMZN</span><div class="pos-name">Mag 7 &middot; Cloud / E-comm</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-AMZN">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-AMZN">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-AMZN">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-AMZN">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-AMZN">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-AMZN">&mdash;</td><td class="num" data-label="Zone" id="zone-AMZN">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-core">GOOGL</span><div class="pos-name">Mag 7 &middot; Cloud / AI</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-GOOGL">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-GOOGL">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-GOOGL">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-GOOGL">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-GOOGL">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-GOOGL">&mdash;</td><td class="num" data-label="Zone" id="zone-GOOGL">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-core">META</span><div class="pos-name">Mag 7 &middot; Social / AI Ads</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-META">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-META">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-META">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-META">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-META">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-META">&mdash;</td><td class="num" data-label="Zone" id="zone-META">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-foundation">EQQB</span><div class="pos-name">QQQ Foundation</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-EQQB">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-EQQB">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-EQQB">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-EQQB">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-EQQB">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-EQQB">&mdash;</td><td class="num" data-label="Zone">ETF</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-foundation">JEDI</span><div class="pos-name">VanEck Space Innovators UCITS ETF</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-JEDI">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-JEDI">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-JEDI">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-JEDI">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-JEDI">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-JEDI">&mdash;</td><td class="num" data-label="Zone">ETF</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-tactical">ALAB</span><div class="pos-name">AI Networking</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-ALAB">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-ALAB">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-ALAB">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-ALAB">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-ALAB">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ALAB">&mdash;</td><td class="num" data-label="Zone" id="zone-ALAB">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-tactical">ORCL</span><div class="pos-name">Cloud / Enterprise</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-ORCL">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-ORCL">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-ORCL">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-ORCL">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-ORCL">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ORCL">&mdash;</td><td class="num" data-label="Zone" id="zone-ORCL">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-tactical">PLTR</span><div class="pos-name">AI Software / Gov</div><div style="font-size:9px;color:var(--amber);margin-top:2px;" id="sb-target-PLTR"></div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-PLTR">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-PLTR">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-PLTR">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-PLTR">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-PLTR">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-PLTR">&mdash;</td><td class="num" data-label="Zone" id="zone-PLTR">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-tactical">ARM</span><div class="pos-name">Chip IP</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-ARM">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-ARM">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-ARM">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-ARM">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-ARM">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-ARM">&mdash;</td><td class="num" data-label="Zone" id="zone-ARM">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-tactical">BE</span><div class="pos-name">Energy / Fuel Cells</div></td>
-          <td class="num" data-label="Price"><span class="lp" id="p-BE">&mdash;</span></td>
-          <td class="num" data-label="Shares" id="sh-BE">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-BE">&mdash;</span></td>
-          <td class="num" data-label="Avg" id="avg-BE">&mdash;</td>
-          <td class="num" data-label="ATH" id="ath-BE">&mdash;</td>
-          <td class="num" data-label="Since-buy High" id="sb-BE">&mdash;</td><td class="num" data-label="Zone" id="zone-BE">&mdash;</td>
-        </tr>
-        <tr>
-          <td><span class="ticker t-foundation">CASH</span><div class="pos-name">Revolut Cash Balance</div></td>
-          <td class="num">&mdash;</td>
-          <td class="num">&mdash;</td>
-          <td class="num" data-label="Value"><span class="lp" id="pv-CASH">&mdash;</span></td>
-          <td class="num">&mdash;</td>
-          <td class="num">&mdash;</td>
-          <td class="num">&mdash;</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;padding:0 4px;">Prices &amp; values from Revolut snapshot, 30 Jul 2026 &middot; live-refresh overrides when available. * MSFT/META/EQQB since-buy highs are best-available and may predate your purchase. ALAB/ORCL/PLTR/ARM/BE since-buy highs left blank (purchase date unknown). PLTR sell target: $165-175.</div><div style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px;padding:0 4px;">Zone (Tom Nash / TackleBoy): ATH-discount ve earnings-gunu her acilista canli hesaplanir. Fundamentals (si/io/cd/rg/om) ve RSI periyodik guncellenir - 8 hisse 2026-05-19, ARM 2026-09-04, BE 2026-08-31 itibariyla. Guncellemek icin Claude'a soyle.</div>
+  <div class="section-title">QQQ İçeriği</div>
   <details style="margin-top:8px;padding:0 4px;">
     <summary style="cursor:pointer;font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;">QQQ (EQQB) &mdash; top 20 underlying holdings &amp; approx. &euro; exposure</summary>
     <div style="margin-top:8px;overflow-x:auto;">
@@ -783,6 +529,62 @@ footer span{color:var(--accent);}
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- WHAT-IF SIMULATOR -->
+<div class="section">
+  <div class="section-title">Ne Olurdu? Simülatörü</div>
+  <div class="card" style="padding:18px;margin-bottom:12px;">
+    <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:14px;">Her hesaba eklemek/çıkarmak istediğin &euro; miktarını gir &mdash; grafikler canlı güncellenir</div>
+
+    <div id="sim-inputs" style="display:grid;grid-template-columns:1fr auto;gap:8px 10px;align-items:center;margin-bottom:12px;">
+      <label for="sim-revolut" style="font-size:11px;color:var(--text);">Revolut Portfolio</label>
+      <input type="number" id="sim-revolut" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-qqq" style="font-size:11px;color:var(--text);">QQQ ETF</label>
+      <input type="number" id="sim-qqq" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-abn" style="font-size:11px;color:var(--text);">ABN AMRO ETF</label>
+      <input type="number" id="sim-abn" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-unil" style="font-size:11px;color:var(--text);">Unilever</label>
+      <input type="number" id="sim-unil" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-ilh" style="font-size:11px;color:var(--text);">İşbank İLH Fon</label>
+      <input type="number" id="sim-ilh" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+
+      <label for="sim-cash" style="font-size:11px;color:var(--text);">Emergency Cash</label>
+      <input type="number" id="sim-cash" class="sim-input" placeholder="0" style="width:100px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;text-align:right;">
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <button id="sim-btn-reset" style="padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10.5px;cursor:pointer;">Sıfırla</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Wealth Breakdown</div>
+        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
+          <canvas id="sim-wealth-pie"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
+            <div id="sim-pie-wealth-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;">Yeni Currency Exposure</div>
+        <div style="position:relative;max-width:220px;margin:0 auto;height:220px;">
+          <canvas id="sim-currency-pie"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div style="font-size:8px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;">Total</div>
+            <div id="sim-pie-currency-center" style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sim-delta-summary" style="font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:12px;"></div>
   </div>
 </div>
 
@@ -1123,12 +925,9 @@ function updateDisplay() {
   document.getElementById('c-locked').textContent = disp(lockedEUR);
   document.getElementById('c-surplus').textContent = disp(MONTHLY_SURPLUS_EUR);
 
-  document.getElementById('av-unilever').textContent = disp(unilEUR);
-  document.getElementById('av-ilh').textContent = disp(ilhEUR);
-  document.getElementById('av-cash').textContent = disp(cashEUR);
-  document.getElementById('av-abn').textContent = disp(abnEUR);
-  document.getElementById('av-revolut').textContent = disp(revEUR);
-  document.getElementById('av-qqq').textContent = disp(qqqEUR);
+  const setAv = (id,v) => { const e = document.getElementById(id); if (e) e.textContent = disp(v); };
+  setAv('av-unilever',unilEUR); setAv('av-ilh',ilhEUR); setAv('av-cash',cashEUR);
+  setAv('av-abn',abnEUR); setAv('av-revolut',revEUR); setAv('av-qqq',qqqEUR);
 
   // ── WEALTH PIE CHART ──
   const chartData = [revEUR, qqqEUR, abnEUR, unilEUR, ilhEUR, cashEUR];
