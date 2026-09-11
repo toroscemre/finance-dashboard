@@ -270,12 +270,12 @@ footer{text-align:center;padding:24px 0 36px;font-size:10px;color:var(--muted);f
       <div class="pie-legend" id="alloc-legend"></div>
     </div>
     <div class="card">
-      <h3>Revolut Dağılımı &mdash; EQQB hariç</h3>
-      <div class="chart-sub">Aynı hesap, kök (EQQB) çıkarılmış</div>
+      <h3>Revolut Dağılımı &mdash; sadece hisseler</h3>
+      <div class="chart-sub">Kök (EQQB) ve nakit çıkarılmış &middot; sadece pozisyonlar</div>
       <div class="pie-wrap">
         <canvas id="alloc-pie-ex"></canvas>
         <div class="pie-center">
-          <div class="pie-center-lbl">EQQB hariç</div>
+          <div class="pie-center-lbl">Hisseler</div>
           <div class="pie-center-val" id="alloc-center-ex">&mdash;</div>
         </div>
       </div>
@@ -491,7 +491,7 @@ function buildPie(canvasId, centerId, legendId, slices, existing){
 function drawAllocationPies(){
   const all=allocSlices();
   allocChart   = buildPie('alloc-pie',    'alloc-center',    'alloc-legend',    all, allocChart);
-  const ex=all.filter(s=>s.label!=='EQQB');
+  const ex=all.filter(s=>s.label!=='EQQB' && s.label!=='Nakit');
   allocChartEx = buildPie('alloc-pie-ex', 'alloc-center-ex', 'alloc-legend-ex', ex,  allocChartEx);
 }
 
