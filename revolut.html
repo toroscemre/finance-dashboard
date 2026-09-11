@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🎯 Revolut — Katmanlı Portföy</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#111118;--surface2:#16161f;--border:rgba(255,255,255,0.07);
+  --text:#e8e8f0;--muted:#6b6b80;--accent:#7c6af7;--accent2:#4ecdc4;
+  --green:#2ecc8a;--red:#ff5c5c;--amber:#f5a623;--gold:#c9a84c;--blue:#5b9bf0;
+  --root:#c9a84c;--comp:#5b9bf0;--sat:#f5a623;--space:#4ecdc4;--cash:#6b6b80;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 15% 0%,rgba(201,168,76,0.07) 0%,transparent 45%),
+  radial-gradient(ellipse at 85% 100%,rgba(91,155,240,0.06) 0%,transparent 50%);pointer-events:none;z-index:0;}
+.wrap{max-width:1100px;margin:0 auto;padding:16px;position:relative;z-index:1;}
+
+nav{position:sticky;top:0;z-index:999;background:#0f0f18;border-bottom:1px solid var(--border);padding:0 12px;display:flex;align-items:center;font-family:'DM Mono',monospace;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+nav a{display:flex;align-items:center;gap:6px;padding:12px 12px;text-decoration:none;font-size:11.5px;font-weight:700;white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0;}
+nav a.active{border-bottom-color:currentColor;}
+nav span{margin-left:auto;font-size:10px;color:#444;padding:0 8px;white-space:nowrap;flex-shrink:0;}
+
+.rates{display:flex;gap:16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.rates b{color:var(--accent2);font-weight:500;}
+.live{width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;}
+.live.on{background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+.header h1{font-family:'DM Serif Display',serif;font-size:clamp(22px,5vw,34px);font-style:italic;line-height:1;}
+.header h1 span{color:var(--accent);}
+.header p{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px;}
+.total{text-align:right;}
+.total .lbl{font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+.total .val{font-family:'DM Serif Display',serif;font-size:clamp(24px,6vw,38px);line-height:1;margin-top:4px;}
+.total .sub{font-size:10.5px;font-family:'DM Mono',monospace;margin-top:4px;}
+@media(max-width:520px){.header{flex-direction:column;align-items:stretch;}.total{text-align:left;}}
+
+.sysbar{margin-bottom:18px;}
+.sysbar-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:4px;}
+.sysbar-sub{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;}
+.stack{display:flex;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.stack div{display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#0a0a0f;transition:width .4s;min-width:0;overflow:hidden;white-space:nowrap;}
+.stack .s-root{background:var(--root);}.stack .s-comp{background:var(--comp);}.stack .s-sat{background:var(--sat);}.stack .s-space{background:var(--space);}.stack .s-cash{background:var(--cash);color:var(--text);}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 14px;margin-top:10px;font-size:10.5px;font-family:'DM Mono',monospace;color:var(--muted);}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+.legend b{color:var(--text);font-weight:500;}
+
+details.layer{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+details.layer summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 14px;user-select:none;-webkit-tap-highlight-color:transparent;}
+details.layer summary::-webkit-details-marker{display:none;}
+details.layer summary .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+details.layer summary h2{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;flex-shrink:0;}
+details.layer summary .meta{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;}
+details.layer summary .meta b{color:var(--text);font-weight:500;}
+details.layer summary .chev{width:18px;height:18px;flex-shrink:0;color:var(--muted);transition:transform .2s;}
+details.layer[open] summary .chev{transform:rotate(180deg);}
+details.layer[open] summary{border-bottom:1px solid var(--border);}
+.layer-rule{font-size:11px;color:var(--muted);padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);line-height:1.45;}
+.layer-rule b{color:var(--text);}
+
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px;white-space:nowrap;}
+th{text-align:left;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+td.num,th.num{text-align:right;}
+.tk{font-weight:600;padding:3px 7px;border-radius:5px;display:inline-block;font-size:11px;}
+.tk-root{background:rgba(201,168,76,.15);color:var(--root);}.tk-comp{background:rgba(91,155,240,.15);color:var(--comp);}.tk-sat{background:rgba(245,166,35,.15);color:var(--sat);}.tk-space{background:rgba(78,205,196,.15);color:var(--space);}
+.sub{font-size:9px;color:var(--muted);margin-top:2px;white-space:normal;max-width:120px;}
+.up{color:var(--green);}.dn{color:var(--red);}
+.prog{display:flex;align-items:center;gap:6px;min-width:90px;}
+.prog .bar{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.prog .fill{height:100%;border-radius:3px;transition:width .4s;}
+.prog .pct{font-size:10px;color:var(--muted);width:32px;text-align:right;}
+.fill-ok{background:var(--green);}.fill-mid{background:var(--amber);}.fill-low{background:var(--red);}
+.fw{font-size:9px;padding:3px 7px;border-radius:20px;font-weight:600;white-space:nowrap;}
+.fw-buy{background:rgba(46,204,138,.18);color:var(--green);}.fw-near{background:rgba(245,166,35,.16);color:var(--amber);}.fw-far{background:rgba(107,107,128,.18);color:var(--muted);}.fw-done{background:rgba(91,155,240,.15);color:var(--blue);}
+
+@media(max-width:640px){
+  .hm{display:none;}
+  table{font-size:11px;}
+  th,td{padding:8px 7px;}
+  .tk{font-size:10px;padding:2px 5px;}
+  .prog{min-width:70px;}
+  .prog .pct{width:28px;font-size:9px;}
+  details.layer summary h2{font-size:15px;}
+  details.layer summary .meta{font-size:10px;}
+  .stack{height:40px;}
+  .stack div{font-size:9.5px;}
+}
+
+.cashbox{background:linear-gradient(135deg,rgba(124,106,247,.08),rgba(78,205,196,.04));border:1px solid rgba(124,106,247,.3);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.cashbox .l{font-size:12px;}
+.cashbox .l b{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);display:block;margin-top:2px;}
+.cashbox .r{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;text-align:right;line-height:1.6;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.card h3{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;margin-bottom:10px;}
+.risk-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.risk-row:last-child{border-bottom:none;}
+.risk-row .l{display:flex;align-items:center;gap:8px;}
+.risk-row .l i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+.risk-row .v{font-family:'DM Mono',monospace;color:var(--red);font-weight:500;}
+.risk-row .p{font-family:'DM Mono',monospace;color:var(--muted);font-size:10px;margin-left:8px;}
+.risk-note{font-size:10.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.rule{font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;}
+.rule:last-child{border-bottom:none;}
+.rule .n{font-family:'DM Mono',monospace;color:var(--accent);flex-shrink:0;}
+.rule b{color:var(--text);}.rule .d{color:var(--muted);}
+
+.trend{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
+.trend-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.trend-head h3{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;}
+.tabs{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:3px;}
+.tabs button{border:none;background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:10.5px;padding:6px 10px;border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.tabs button.on{background:var(--accent);color:#fff;}
+.chartbox{position:relative;height:240px;}
+@media(max-width:520px){.chartbox{height:200px;}}
+.trend-note{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:10px;}
+
+.analyses{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
+.analyses h3{font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;margin-bottom:4px;}
+.analyses .an-sub{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.an-empty{border:1px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;line-height:1.7;}
+
+footer{text-align:center;padding:24px 0 36px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;border-top:1px solid var(--border);margin-top:24px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="color:#7c6af7;">🐕 WatchDog</a>
+  <a href="revolut.html" class="active" style="color:#c9a84c;">🎯 Revolut</a>
+  <a href="birdwatch.html" style="color:#2ecc8a;">🦅 BirdWatch</a>
+  <a href="tacklboy_light.html" style="color:#f5a623;">🎣 TackleBoy</a>
+  <a href="mothertree.html" style="color:#2ecc8a;">🌳 Mother Tree</a>
+  <a href="plan2026.html" style="color:#5b9bf0;">📋 Plan 2026</a>
+  <span>toroscemre · Eyl 2026</span>
+</nav>
+
+<div class="wrap">
+
+  <div class="rates">
+    <div>EUR/USD <b id="r-eurusd">—</b></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px;"><span class="live" id="live"></span><span id="upd">Bağlanıyor…</span></div>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>🎯 Revolut <span>Katmanlı Sistem</span></h1>
+      <p>Kök · Compounder · Uydu · Rezerv — tek ekranda</p>
+    </div>
+    <div class="total">
+      <div class="lbl">Toplam (nakit dahil)</div>
+      <div class="val" id="t-total">—</div>
+      <div class="sub" id="t-pl">—</div>
+    </div>
+  </div>
+
+  <div class="sysbar">
+    <div class="sysbar-title">Sistem Yapısı</div>
+    <div class="sysbar-sub">Bar: toplam içindeki pay (nakit dahil) · Katman başlıkları: yatırılan içindeki pay (nakit hariç)</div>
+    <div class="stack" id="stack">
+      <div class="s-root" id="st-root"></div>
+      <div class="s-comp" id="st-comp"></div>
+      <div class="s-sat" id="st-sat"></div>
+      <div class="s-space" id="st-space"></div>
+      <div class="s-cash" id="st-cash"></div>
+    </div>
+    <div class="legend">
+      <div><i style="background:var(--root)"></i><b>Kök</b> — EQQB, asla satılmaz</div>
+      <div><i style="background:var(--comp)"></i><b>Compounder</b> — 5 × $3,500</div>
+      <div><i style="background:var(--sat)"></i><b>Uydu</b> — 5 × $1,000</div>
+      <div><i style="background:var(--space)"></i><b>JEDI</b> — uzay teması</div>
+      <div><i style="background:var(--cash)"></i><b>Nakit</b> — fırsat rezervi</div>
+    </div>
+  </div>
+
+  <div class="cashbox">
+    <div class="l">Fırsat Rezervi<b id="cash-val">—</b></div>
+    <div class="r">Fırsat başına max $1,500 · Taban $500<br>31 Aralık'ta kalan → EQQB</div>
+  </div>
+
+  <details class="layer" open>
+    <summary>
+      <div class="dot" style="background:var(--root)"></div>
+      <h2>Kök</h2>
+      <div class="meta"><b id="l-root-val">—</b> · <span id="l-root-pct">—</span></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="layer-rule"><b>Kural:</b> Kök, <b>yatırılan sermayenin</b> (nakit hariç) %25'inin altına düşemez. Her windfall'ın %20'si buraya. <span id="root-floor-txt"></span></div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Ticker</th><th class="num">Fiyat</th><th class="num hm">Adet</th><th class="num">Değer</th><th class="num hm">Ort.</th><th class="num">K/Z</th><th>%25 taban</th></tr></thead>
+      <tbody id="tb-root"></tbody>
+    </table></div>
+  </details>
+
+  <details class="layer" open>
+    <summary>
+      <div class="dot" style="background:var(--comp)"></div>
+      <h2>Compounder'lar</h2>
+      <div class="meta"><b id="l-comp-val">—</b> · <span id="l-comp-pct">—</span></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="layer-rule"><b>Kural:</b> Asla satılmaz. Hedef $3,500/hisse. Framework: RSI&lt;35 · zirveden %30+ · earnings uzak.</div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Ticker</th><th class="num">Fiyat</th><th class="num hm">Adet</th><th class="num">Değer</th><th class="num hm">Ort.</th><th class="num">K/Z</th><th class="num hm">Zirveden</th><th>Hedef</th><th>Durum</th></tr></thead>
+      <tbody id="tb-comp"></tbody>
+    </table></div>
+  </details>
+
+  <details class="layer" open>
+    <summary>
+      <div class="dot" style="background:var(--sat)"></div>
+      <h2>Uydular</h2>
+      <div class="meta"><b id="l-sat-val">—</b> · <span id="l-sat-pct">—</span></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="layer-rule"><b>Kural:</b> Hedef $1,000/hisse. $1,500'ü geçerse → core'a terfi mi, kâr realize mi? Beşi birlikte tek NVDA kadar risk.</div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Ticker</th><th class="num">Fiyat</th><th class="num hm">Adet</th><th class="num">Değer</th><th class="num hm">Ort.</th><th class="num">K/Z</th><th class="num hm">Zirveden</th><th>Hedef</th><th>Durum</th></tr></thead>
+      <tbody id="tb-sat"></tbody>
+    </table></div>
+  </details>
+
+  <details class="layer">
+    <summary>
+      <div class="dot" style="background:var(--space)"></div>
+      <h2>Uzay Teması</h2>
+      <div class="meta"><b id="l-space-val">—</b> · <span id="l-space-pct">—</span></div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="layer-rule"><b>Kural:</b> Aylık €100 DCA. TER %0.55. RKLB %6.4 · EchoStar %6.6 (SpaceX'e dolaylı).</div>
+    <div class="tscroll"><table>
+      <thead><tr><th>Ticker</th><th class="num">Fiyat</th><th class="num hm">Adet</th><th class="num">Değer</th><th class="num hm">Ort.</th><th class="num">K/Z</th></tr></thead>
+      <tbody id="tb-space"></tbody>
+    </table></div>
+  </details>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>%10 Düşüş Etkisi</h3>
+      <div id="risk-rows"></div>
+      <div class="risk-note">Nakit düşmez — servetteki etki hisse kaybından küçük. Uydular yüksek betalı: %10 piyasa düşüşünde %15-20 düşebilirler.</div>
+    </div>
+    <div class="card">
+      <h3>Sabit Kurallar</h3>
+      <div class="rule"><span class="n">01</span><div><b>Windfall</b> <span class="d">— %80 pozisyon, %20 kök. Kök asla atlanmaz.</span></div></div>
+      <div class="rule"><span class="n">02</span><div><b>$500 altı</b> <span class="d">— zamanlama tartışılmaz, hemen yap.</span></div></div>
+      <div class="rule"><span class="n">03</span><div><b>Yeni isim</b> <span class="d">— 2026'da sadece CEG ve TSLA.</span></div></div>
+      <div class="rule"><span class="n">04</span><div><b>DCA</b> <span class="d">— €300 EQQB + €100 JEDI, ayın 21'i sonrası.</span></div></div>
+      <div class="rule"><span class="n">05</span><div><b>Derin puanlama</b> <span class="d">— sadece Ekim ve Ocak.</span></div></div>
+    </div>
+  </div>
+
+  <div class="trend">
+    <div class="trend-head">
+      <h3>Portföy Trendi</h3>
+      <div class="tabs" id="trend-tabs">
+        <button class="on" data-v="total">Toplam</button>
+        <button data-v="layers">Katmanlar</button>
+        <button data-v="comp">Compounder</button>
+        <button data-v="sat">Uydu</button>
+      </div>
+    </div>
+    <div class="chartbox"><canvas id="trend-chart"></canvas></div>
+    <div class="trend-note" id="trend-note">Her ay bir nokta.</div>
+  </div>
+
+  <div class="analyses">
+    <h3>Güncel Analizler</h3>
+    <div class="an-sub">Hisse bazında son değerlendirmeler — framework, tez, risk</div>
+    <div id="an-list">
+      <div class="an-empty">Henüz analiz eklenmedi.<br>Bu bölüm hisse bazında doldurulacak.</div>
+    </div>
+  </div>
+
+  <footer>🎯 Revolut Katmanlı Sistem · WatchDog Finance<br>Fiyatlar: Finnhub (USD) · EQQB/JEDI snapshot · 60sn yenileme · Yatırım tavsiyesi değildir</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const FKEY='d7hpv81r01qirk40j0p0d7hpv81r01qirk40j0pg';
+let EURUSD=1.1656;
+let live={};
+
+// ═══ POZİSYONLAR — Revolut ekranından güncelle (8 Eyl 2026) ═══
+// snap: son bilinen fiyat (USD; EQQB/JEDI için EUR) · avg: ort. maliyet · hi: 52h zirve (USD)
+const POS={
+  root:{ EQQB:{n:'Invesco Nasdaq-100 Acc',sh:12.26,snap:435.90,avg:377.0,cur:'EUR'} },
+  comp:{
+    NVDA:{n:'AI Chips',sh:20.29,snap:226.05,avg:180.0,hi:236.54},
+    GOOGL:{n:'Cloud / AI',sh:9.36,snap:338.87,avg:309.0,hi:408.61},
+    MSFT:{n:'Cloud / AI',sh:5.06,snap:492.54,avg:364.0,hi:553.72},
+    AMZN:{n:'AWS / E-comm',sh:5.31,snap:257.20,avg:201.0,hi:287.20},
+    META:{n:'Social / AI Ads',sh:1.50,snap:618.61,avg:526.0,hi:790.80},
+  },
+  sat:{
+    ARM:{n:'Chip IP',sh:4.00,snap:267.35,avg:270.4,hi:452.70},
+    ORCL:{n:'Cloud / Enterprise',sh:6.00,snap:163.17,avg:166.5,hi:345.72},
+    ALAB:{n:'AI Connectivity',sh:2.47,snap:293.13,avg:202.2,hi:499.48},
+    PLTR:{n:'AI Software',sh:4.00,snap:172.06,avg:135.0,hi:207.52},
+    BE:{n:'Fuel Cells',sh:2.00,snap:283.15,avg:205.0,hi:351.28},
+  },
+  space:{ JEDI:{n:'VanEck Space Innovators',sh:2.79,snap:70.70,avg:71.9,cur:'EUR'} }
+};
+const CASH_USD=7909;
+const TGT_COMP=3500, TGT_SAT=1000, ROOT_FLOOR=0.25;
+
+const $=id=>document.getElementById(id);
+const usd=n=>'$'+Math.round(n).toLocaleString('en-US');
+const pct=n=>(n>=0?'+':'')+n.toFixed(2)+'%';
+function priceUSD(t,p){ if(live[t]) return live[t]; return p.cur==='EUR'?p.snap*EURUSD:p.snap; }
+function avgUSD(p){ return p.cur==='EUR'?p.avg*EURUSD:p.avg; }
+function curNative(t,p){ return live[t]||p.snap; }
+function dispPrice(t,p){ return p.cur==='EUR'?'€'+p.snap.toFixed(2):'$'+priceUSD(t,p).toFixed(2); }
+function progBar(r){ r=Math.min(Math.max(r,0),1); const c=r>=1?'fill-ok':r>=.6?'fill-mid':'fill-low';
+  return '<div class="prog"><div class="bar"><div class="fill '+c+'" style="width:'+(r*100).toFixed(0)+'%"></div></div><span class="pct">'+(r*100).toFixed(0)+'%</span></div>'; }
+function fwBadge(t,p,val,tgt){
+  if(tgt&&val>=tgt) return '<span class="fw fw-done">Hedef ✓</span>';
+  if(!p.hi) return '<span class="fw fw-far">—</span>';
+  const dd=(p.hi-curNative(t,p))/p.hi*100;
+  if(dd>=30) return '<span class="fw fw-buy">Alım bölgesi</span>';
+  if(dd>=20) return '<span class="fw fw-near">Yaklaşıyor</span>';
+  return '<span class="fw fw-far">Uzak</span>';
+}
+function rowHTML(t,p,cls,tgt,full){
+  const px=priceUSD(t,p), val=px*p.sh, cost=avgUSD(p)*p.sh, pl=(val-cost)/cost*100;
+  const avgD=p.cur==='EUR'?'€'+p.avg.toFixed(0):'$'+p.avg.toFixed(0);
+  let h='<tr><td><span class="tk '+cls+'">'+t+'</span><div class="sub">'+p.n+'</div></td>'+
+    '<td class="num">'+dispPrice(t,p)+'</td><td class="num hm">'+p.sh+'</td>'+
+    '<td class="num">'+usd(val)+'</td><td class="num hm">'+avgD+'</td>'+
+    '<td class="num '+(pl>=0?'up':'dn')+'">'+pct(pl)+'</td>';
+  if(full){
+    const dd=p.hi?(p.hi-curNative(t,p))/p.hi*100:null;
+    h+='<td class="num hm '+(dd!=null&&dd>=30?'up':'')+'">'+(dd!=null?'-'+dd.toFixed(1)+'%':'—')+'</td>';
+    h+='<td>'+progBar(val/tgt)+'</td><td>'+fwBadge(t,p,val,tgt)+'</td>';
+  }
+  return h+'</tr>';
+}
+function layerTotal(g){ let v=0,c=0; for(const [t,p] of Object.entries(g)){ v+=priceUSD(t,p)*p.sh; c+=avgUSD(p)*p.sh; } return {v,c}; }
+
+let lastTotals=null;
+function render(){
+  const R=layerTotal(POS.root),C=layerTotal(POS.comp),S=layerTotal(POS.sat),J=layerTotal(POS.space);
+  const stocks=R.v+C.v+S.v+J.v, total=stocks+CASH_USD, cost=R.c+C.c+S.c+J.c, gain=stocks-cost;
+  lastTotals={R:R.v,C:C.v,S:S.v,J:J.v,cash:CASH_USD,total,stocks};
+
+  $('t-total').textContent=usd(total);
+  $('t-pl').innerHTML='<span class="'+(gain>=0?'up':'dn')+'">'+(gain>=0?'+':'−')+usd(Math.abs(gain))+' ('+pct(gain/cost*100)+')</span> · hisseler '+usd(stocks);
+  $('cash-val').textContent=usd(CASH_USD);
+
+  // TEK DENOMINATOR: toplam (nakit dahil). Bar ve tab başlıkları aynı sayıyı gösterir.
+  const sh=x=>x/total*100;
+  const seg=(id,v,label)=>{ const e=$(id); const p=sh(v); e.style.width=p.toFixed(1)+'%'; e.textContent=p>=7?label+' '+p.toFixed(0)+'%':(p>=3?p.toFixed(0)+'%':''); e.title=label+' '+p.toFixed(1)+'%'; };
+  seg('st-root',R.v,'Kök'); seg('st-comp',C.v,'Comp'); seg('st-sat',S.v,'Uydu'); seg('st-space',J.v,'JEDI'); seg('st-cash',CASH_USD,'Nakit');
+
+  // Tab başlıkları: yatırılan sermaye içindeki pay (nakit hariç) — bar ise nakit dahil toplam
+  const sp=x=>x/stocks*100;
+  $('l-root-val').textContent=usd(R.v);  $('l-root-pct').textContent=sp(R.v).toFixed(1)+'% pay';
+  $('l-comp-val').textContent=usd(C.v);  $('l-comp-pct').textContent=sp(C.v).toFixed(1)+'% pay';
+  $('l-sat-val').textContent=usd(S.v);   $('l-sat-pct').textContent=sp(S.v).toFixed(1)+'% pay';
+  $('l-space-val').textContent=usd(J.v); $('l-space-pct').textContent=sp(J.v).toFixed(1)+'% pay';
+
+  // %25 taban ayrı: kök / yatırılan (nakit hariç)
+  const rootRatio=R.v/stocks;
+  $('root-floor-txt').innerHTML='Şu an kök/yatırılan = <b class="'+(rootRatio>=ROOT_FLOOR?'up':'dn')+'">'+(rootRatio*100).toFixed(1)+'%</b>';
+
+  let h='';
+  for(const [t,p] of Object.entries(POS.root)) h+=rowHTML(t,p,'tk-root',null,false).replace('</tr>','<td>'+progBar(rootRatio/ROOT_FLOOR)+'</td></tr>');
+  $('tb-root').innerHTML=h;
+  h=''; for(const [t,p] of Object.entries(POS.comp)) h+=rowHTML(t,p,'tk-comp',TGT_COMP,true); $('tb-comp').innerHTML=h;
+  h=''; for(const [t,p] of Object.entries(POS.sat))  h+=rowHTML(t,p,'tk-sat',TGT_SAT,true);  $('tb-sat').innerHTML=h;
+  h=''; for(const [t,p] of Object.entries(POS.space))h+=rowHTML(t,p,'tk-space',null,false);  $('tb-space').innerHTML=h;
+
+  const rows=[['Kök (EQQB)',R.v,'var(--root)'],['Compounder\'lar',C.v,'var(--comp)'],['Uydular',S.v,'var(--sat)'],['JEDI',J.v,'var(--space)']];
+  let rh='';
+  for(const [n,v,c] of rows) rh+='<div class="risk-row"><div class="l"><i style="background:'+c+'"></i>'+n+'</div><div><span class="v">−'+usd(v*.1)+'</span><span class="p">'+(v*.1/total*100).toFixed(1)+'%</span></div></div>';
+  rh+='<div class="risk-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:10px;"><div class="l"><b>Toplam hisse</b></div><div><span class="v">−'+usd(stocks*.1)+'</span><span class="p">'+(stocks*.1/total*100).toFixed(1)+'%</span></div></div>';
+  $('risk-rows').innerHTML=rh;
+
+  recordSnapshot();
+}
+
+// ═══ TREND — localStorage, aylık snapshot ═══
+const TKEY='revolut_trend_v1';
+const SEED={
+  '2026-07':{total:19713,root:5556,comp:11430,sat:2485,space:77,cash:165,NVDA:3929,GOOGL:3128,MSFT:2307,AMZN:1270,META:796,ARM:238,ORCL:629,ALAB:719,PLTR:488,BE:411},
+  '2026-08':{total:31452,root:5770,comp:12457,sat:3135,space:90,cash:10000,NVDA:4565,GOOGL:3220,MSFT:2431,AMZN:1388,META:853,ARM:448,ORCL:733,ALAB:794,PLTR:696,BE:464},
+};
+const TR_M=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+function loadTrend(){ let h={}; try{h=JSON.parse(localStorage.getItem(TKEY))||{};}catch(e){} for(const k in SEED) if(!h[k]) h[k]=SEED[k]; return h; }
+function recordSnapshot(){
+  if(!lastTotals) return;
+  const k=new Date().toISOString().slice(0,7);
+  const h=loadTrend();
+  const e={total:lastTotals.total,root:lastTotals.R,comp:lastTotals.C,sat:lastTotals.S,space:lastTotals.J,cash:lastTotals.cash};
+  for(const g of ['comp','sat']) for(const [t,p] of Object.entries(POS[g])) e[t]=Math.round(priceUSD(t,p)*p.sh);
+  h[k]=e;
+  try{localStorage.setItem(TKEY,JSON.stringify(h));}catch(x){}
+  drawTrend();
+}
+let trendChart=null, trendView='total';
+const LAYER_C={root:'#c9a84c',comp:'#5b9bf0',sat:'#f5a623',space:'#4ecdc4',cash:'#6b6b80'};
+const STOCK_C={NVDA:'#76b900',GOOGL:'#4285f4',MSFT:'#00a4ef',AMZN:'#ff9900',META:'#0668e1',ARM:'#1fb6ff',ORCL:'#f80000',ALAB:'#5b6ee1',PLTR:'#e8e8e8',BE:'#00c48c'};
+function drawTrend(){
+  const cv=$('trend-chart'); if(!cv||!window.Chart) return;
+  const h=loadTrend(); const keys=Object.keys(h).sort(); const labels=keys.map(k=>TR_M[+k.slice(5,7)-1]);
+  const line=(label,arr,color,fill)=>({label,data:arr,borderColor:color,backgroundColor:fill?color+'22':'transparent',fill:!!fill,tension:.3,pointRadius:3,borderWidth:2,spanGaps:true});
+  let ds;
+  if(trendView==='total') ds=[line('Toplam',keys.map(k=>h[k].total),'#7c6af7',true),line('Hisseler',keys.map(k=>h[k].total-(h[k].cash||0)),'#4ecdc4',false)];
+  else if(trendView==='layers') ds=[['root','Kök'],['comp','Compounder'],['sat','Uydu'],['space','JEDI'],['cash','Nakit']].map(([k,l])=>line(l,keys.map(x=>h[x][k]||0),LAYER_C[k],false));
+  else if(trendView==='comp') ds=Object.keys(POS.comp).map(t=>line(t,keys.map(x=>h[x][t]||null),STOCK_C[t],false));
+  else ds=Object.keys(POS.sat).map(t=>line(t,keys.map(x=>h[x][t]||null),STOCK_C[t],false));
+  const opts={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    scales:{x:{ticks:{color:'#8a8aa0',font:{family:"'DM Mono',monospace",size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+            y:{ticks:{color:'#8a8aa0',font:{family:"'DM Mono',monospace",size:9},callback:v=>'$'+(v/1000).toFixed(v>=10000?0:1)+'k'},grid:{color:'rgba(255,255,255,.04)'}}},
+    plugins:{legend:{position:'bottom',labels:{color:'#e8e8f0',font:{family:"'DM Mono',monospace",size:9.5},boxWidth:9,padding:8}},
+             tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+usd(c.parsed.y)}}}};
+  if(trendChart){ trendChart.data.labels=labels; trendChart.data.datasets=ds; trendChart.update(); }
+  else trendChart=new Chart(cv,{type:'line',data:{labels,datasets:ds},options:opts});
+  const n={total:'Toplam servet ve hisseler (nakit hariç).',layers:'Beş katmanın aylık seyri.',comp:'Beş compounder\'ın pozisyon değeri.',sat:'Beş uydunun pozisyon değeri.'};
+  $('trend-note').textContent=n[trendView]+' Her ay bir nokta; ay içinde son değer güncellenir.';
+}
+$('trend-tabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#trend-tabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); trendView=b.dataset.v; drawTrend(); });
+
+async function fetchRates(){ try{const r=await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD',{cache:'no-store'});const d=await r.json();EURUSD=d.rates.USD;$('r-eurusd').textContent=EURUSD.toFixed(4);}catch(e){$('r-eurusd').textContent=EURUSD.toFixed(4)+' (cache)';} }
+async function fetchPrices(){
+  const syms=[...Object.keys(POS.comp),...Object.keys(POS.sat)]; let ok=0;
+  for(const s of syms){ try{const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+s+'&token='+FKEY,{cache:'no-store'});const d=await r.json();if(d&&d.c>0){live[s]=d.c;ok++;}}catch(e){} }
+  $('live').className='live'+(ok?' on':'');
+  $('upd').textContent=ok?'Canlı · '+new Date().toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})+' · '+ok+'/'+syms.length:'Snapshot';
+  render();
+}
+async function init(){ await fetchRates(); render(); await fetchPrices(); }
+init();
+setInterval(async()=>{await fetchRates();await fetchPrices();},60000);
+</script>
+</body>
+</html>
