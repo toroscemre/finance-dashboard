@@ -435,7 +435,7 @@ function drawTrend(){
 $('trend-tabs').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#trend-tabs button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); trendView=b.dataset.v; drawTrend(); });
 
-async function fetchRates(){ try{const r=await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD',{cache:'no-store'});const d=await r.json();EURUSD=d.rates.USD;$('r-eurusd').textContent=EURUSD.toFixed(4);}catch(e){$('r-eurusd').textContent=EURUSD.toFixed(4)+' (cache)';} }
+async function fetchRates(){ try{const r=await fetch('https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD',{cache:'no-store'});const d=await r.json();EURUSD=d.rates.USD;$('r-eurusd').textContent=EURUSD.toFixed(4);}catch(e){$('r-eurusd').textContent=EURUSD.toFixed(4)+' (cache)';} }
 async function fetchPrices(){
   const syms=[...Object.keys(POS.comp),...Object.keys(POS.sat)]; let ok=0;
   for(const s of syms){ try{const r=await fetch('https://finnhub.io/api/v1/quote?symbol='+s+'&token='+FKEY,{cache:'no-store'});const d=await r.json();if(d&&d.c>0){live[s]=d.c;ok++;}}catch(e){} }
